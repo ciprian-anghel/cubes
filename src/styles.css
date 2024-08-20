@@ -1,1 +1,27 @@
-/* You can add global styles to this file, and also import other style files */
+/*
+
+    Bootstrap 1 rem = 16px 
+
+*/
+
+:root {
+    --white: #fff;
+    --light-gray: #ddd;
+    --gray: #555;
+    --black: black;
+
+    --validation-success: #03bd00;
+    --validation-error: #bb2121;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Hides the reveal password and clear text field from Internet Explorer and Edge */
+input::-ms-reveal,
+input::-ms-clear {
+    display: none;
+}

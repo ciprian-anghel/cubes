@@ -1,0 +1,32 @@
+.main-container {
+    display: flex;
+    flex-direction: column;
+    
+    height: 100vh;
+    margin-left: 1rem;
+    margin-right: 1rem;
+}
+
+.section-customization {
+    gap: 0.5rem;
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+
+    background-color: bisque;
+}
+
+.section-print {
+    display: flex;
+    justify-content: end;
+    margin-right: 2rem;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+.character-container {
+    background-color: red;
+    width: 100%;
+}
+
