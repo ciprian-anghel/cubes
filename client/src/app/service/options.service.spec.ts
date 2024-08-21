@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { OptionParserService } from './option-parser.service';
+import { OptionsService } from './options.service';
 
-describe('OptionParserService', () => {
-  let service: OptionParserService;
+describe('OptionsService', () => {
+  let service: OptionsService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(OptionParserService);
+    service = TestBed.inject(OptionsService);
   });
 
   it('should be created', () => {
