@@ -6,8 +6,13 @@ import { Option } from '../model/option.model';
 })
 export class OptionParserService implements OnInit {
 
+  //TODO: Mai bine schimb logica to Map
+
   //Change this to signals  
   private options:  Option[][][] = [];
+
+  //alta varianta?
+  private optionsMap = new Map<string, Map<string, Map<String, Object>>>();
 
   constructor() { }
 
