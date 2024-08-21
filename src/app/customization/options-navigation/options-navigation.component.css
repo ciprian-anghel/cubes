@@ -1,5 +1,4 @@
 .options-navigation-container {
-    background-color: rebeccapurple;
     width: 7rem;
     min-width: 7rem;
     height: 100%;
@@ -12,4 +11,7 @@
 
     padding-top: 1rem;
     padding-bottom: 1rem;
+
+    overflow-y: scroll;
+    scrollbar-width: none;
 }

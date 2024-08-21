@@ -25,3 +25,10 @@ input::-ms-reveal,
 input::-ms-clear {
     display: none;
 }
+
+.round-border--5 {
+    border: lightgray;
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 5px;
+}
