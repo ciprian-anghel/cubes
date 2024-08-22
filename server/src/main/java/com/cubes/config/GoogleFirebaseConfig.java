@@ -10,13 +10,22 @@ import com.google.cloud.storage.StorageOptions;
 
 @Configuration
 public class GoogleFirebaseConfig {
-
+	
+	//READ THIS: https://firebase.google.com/docs/admin/setup#java
+	//Clean Up pom.xml dependencies. Maybe run a mvn command to see which dependencies are not used.
+	
 	@Bean
 	Bucket createBucket() {
 		Storage storage = StorageOptions.getDefaultInstance().getService();
-//	    String bucketName = "gs://testfirebase-b3a7e.appspot.com";
 		String bucketName = "testfirebase-b3a7e.appspot.com";
 		return storage.create(BucketInfo.of(bucketName));
-	}
+	}	
 	
+//	void intializeFirebase() {
+//		FirebaseOptions options = FirebaseOptions.builder()
+//				.setProjectId("testfirebase-b3a7e")
+//				.set
+//		FirebaseApp app = FirebaseApp.initializeApp();
+//			}
+//	
 }

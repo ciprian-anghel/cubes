@@ -10,10 +10,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 
-@RestController
+//@RestController
 public class GoogleCloudBucketController {
 
-	@Autowired
+//	@Autowired
 	private Bucket bucket;
 	
 	@GetMapping("all")
