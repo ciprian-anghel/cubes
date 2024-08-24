@@ -3,7 +3,7 @@ package com.cubes.dto;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FilesDto {
+public class TempDto {
 
 	private List<String> fileNames = new ArrayList<>();
 
