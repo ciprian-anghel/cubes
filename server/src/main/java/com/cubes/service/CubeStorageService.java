@@ -1,9 +1,10 @@
 package com.cubes.service;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 
 import javax.annotation.PostConstruct;
 
@@ -24,12 +25,13 @@ public class CubeStorageService {
 	private static final String FOLDER_PREFIX = "cubes";
 	
 	private final Bucket bucket;
-	
-	private OptionDto godFatherObject;
+	private final Environment environment;
+	private final OptionDto motherOfOptions = new OptionDto();
 
 	@Autowired
     public CubeStorageService(Bucket bucket, Environment environment) {
         this.bucket = bucket;
+        this.environment = environment;
     }
     
     @PostConstruct
@@ -38,11 +40,11 @@ public class CubeStorageService {
     }
     
     private void init() {
-    	cleanPreviousDownloadedAssets();
-    	
-    	
-    	downloadAllAssets();
-    	//Create ObjectDto
+    	if (environment.isCleanAndRedownloadOnStartup()) {
+        	cleanPreviousDownloadedAssets();
+        	downloadAllAssets();
+    	}
+    	initOptions();
     }
     
     private void cleanPreviousDownloadedAssets() {
@@ -56,7 +58,7 @@ public class CubeStorageService {
     		  .forEach(this::download);
     }
 
-    void download(Blob blob) {
+    private void download(Blob blob) {
         String name = blob.getName();
         Path targetPath = Path.of(LOCAL_STORAGE_PATH, name);
 
@@ -66,5 +68,32 @@ public class CubeStorageService {
         } catch (IOException e) {
             throw new RuntimeException("Failed to create directories or download file: " + name, e);
         }
+    }
+    
+    private void initOptions() {
+    	Path localStoragePath = Path.of(LOCAL_STORAGE_PATH);
+    	if (Files.notExists(localStoragePath)) {
+    		return;
+    	}
+    	walkInDirectory(localStoragePath.toFile());
+    	
+    }
+    
+    // TREBUIE SA VIZUALIZEZ CUM SA PARCURG DRACIA
+    private void walkInDirectory(File directory) {
+    	File[] files = directory.listFiles();
+    	for (File file : files) {
+	    	if (file.isDirectory()) {
+				OptionDto optionDto = new OptionDto();
+				String iconName = "icon-" + file.getName() + ".png";
+				Path iconPath = Path.of(file.getParent(), iconName);
+				if (Files.exists(iconPath)) {
+					optionDto.setIconAssetPath(iconPath.toString());
+				}
+				
+				walkInDirectory(file);
+			}
+	    	// if file do something else
+    	}
     }
 }
