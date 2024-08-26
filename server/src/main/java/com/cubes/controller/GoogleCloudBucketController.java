@@ -17,14 +17,14 @@ public class GoogleCloudBucketController {
 	@Autowired
 	private CubeStorageService cubeStorageService;
    
-    @GetMapping("/files")
-    public ResponseEntity<TempDto> getAllFiles() {
-    	TempDto dto = new TempDto();
-    	
-        Stream<Blob> streamBlob = cubeStorageService.listObjects();
-        streamBlob.forEach(
-        		item -> dto.getFileNames().add(item.getName()));
-        return ResponseEntity.ok(dto);
-    }
+//    @GetMapping("/files")
+//    public ResponseEntity<TempDto> getAllFiles() {
+//    	TempDto dto = new TempDto();
+//    	
+//        Stream<Blob> streamBlob = cubeStorageService.listObjects();
+//        streamBlob.forEach(
+//        		item -> dto.getFileNames().add(item.getName()));
+//        return ResponseEntity.ok(dto);
+//    }
     
 }

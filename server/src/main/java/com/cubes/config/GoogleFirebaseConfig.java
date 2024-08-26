@@ -5,7 +5,6 @@ import javax.naming.ConfigurationException;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.cubes.service.CubeStorageService;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
@@ -37,10 +36,5 @@ public class GoogleFirebaseConfig {
 			return bucket;
 		}
 		throw new ConfigurationException("getBucket - Google Cloud Storage's bucket could not be found. Application will not start.");
-	}	
-	
-    @Bean
-    public CubeStorageService cubeStorageService(Bucket bucket) {
-        return new CubeStorageService(bucket);
-    }
+	}
 }

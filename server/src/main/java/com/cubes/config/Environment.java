@@ -10,6 +10,9 @@ public class Environment {
 	@Value("${GOOGLE_CLOUD_STORAGE_BUCKET_ID}")	
 	public String bucketName;
 	
+	@Value("${READ_FROM_CACHE:false}")
+	public boolean readFromCache;
+	
 	public String getProjectId() {
 		return this.projectId;
 	}
@@ -17,5 +20,4 @@ public class Environment {
 	public String getBucketName() {
 		return this.bucketName;
 	}
-
 }
