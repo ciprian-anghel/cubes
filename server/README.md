@@ -1,4 +1,4 @@
-## To start application, the following configuration needs to be done:
+## To start application, the following configuration needs to be added:
 1. In Environment variables set the following:
 	- GOOGLE_APPLICATION_CREDENTIALS = <path to application credentials JSON file>  
 	- GOOGLE_CLOUD_STORAGE_PROJECT_ID = <cloud storage project id>  

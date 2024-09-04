@@ -8,6 +8,8 @@ import java.nio.file.Paths;
 
 import javax.annotation.PostConstruct;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,15 +20,18 @@ import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage.BlobListOption;
 
+
 @Service
 public class CubeStorageService {
+	
+	private static final Logger log = LoggerFactory.getLogger(CubeStorageService.class);
 	
 	private static final String LOCAL_STORAGE_PATH = "localStorage/";
 	private static final String FOLDER_PREFIX = "cubes";
 	
 	private final Bucket bucket;
 	private final Environment environment;
-	private final OptionDto motherOfOptions = new OptionDto();
+	private final OptionDto optionRoot = new OptionDto();
 
 	@Autowired
     public CubeStorageService(Bucket bucket, Environment environment) {
@@ -35,23 +40,43 @@ public class CubeStorageService {
     }
     
     @PostConstruct
-    private void postConstruct() throws IOException {
-    	init();
+    private void postConstruct() {
+    	initializeAssets();
     }
     
-    private void init() {
-    	if (environment.isCleanAndRedownloadOnStartup()) {
-        	cleanPreviousDownloadedAssets();
-        	downloadAllAssets();
+    private void initializeAssets() {
+    	log.info("initializeAssets - starting to initialize assets");
+    	if (environment.isAlwaysDownloadAssets()) {
+    		discardAndDownloadAssets();
+        	return;
+    	} else {
+    		downdloadAssetsIfNotInCache();
     	}
-    	initOptions();
+    	initializeOptionRoot();
     }
     
-    private void cleanPreviousDownloadedAssets() {
+    private void discardAndDownloadAssets() {
+    	discardCachedAssets();
+    	downloadAllAssets();
+    }
+    
+    private void downdloadAssetsIfNotInCache() {
+    	Path localStorage = Path.of(LOCAL_STORAGE_PATH);
+    	if (Files.exists(localStorage)) {
+    		log.info("downdloadAssetsIfNotInCache - assets cache found, assets will be used from cache");
+    		return;
+    	}
+    	log.info("downdloadAssetsIfNotInCache - assets cache not found, assets will be downloaded from remote storage");
+		downloadAllAssets();
+    }
+    
+    private void discardCachedAssets() {
+    	log.info("discardCachedAssets - remove cached assets");
     	FileUtils.deleteDirectory(Paths.get(LOCAL_STORAGE_PATH).toFile());
     }
     
     private void downloadAllAssets() {
+    	log.info("downloadAllAssets - downloading assets from remote storage");
     	bucket.list(BlobListOption.prefix(FOLDER_PREFIX))
     		  .streamAll()
     		  .filter(blob -> !FileUtils.isGcsDirectory(blob.getName()))
@@ -70,7 +95,11 @@ public class CubeStorageService {
         }
     }
     
-    private void initOptions() {
+    /*
+     * I do not like this approach 
+     */
+    private void initializeOptionRoot() {
+    	log.info("initializeOptionRoot - starting the initialization of assets into main option object");
     	Path localStoragePath = Path.of(LOCAL_STORAGE_PATH);
     	if (Files.notExists(localStoragePath)) {
     		return;

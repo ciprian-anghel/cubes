@@ -11,8 +11,8 @@ public class TempDto {
 		return fileNames;
 	}
 
-	public void setFileNames(List<String> fileNames) {
-		this.fileNames = fileNames;
+	public void addFileName(String fileName) {
+		fileNames.add(fileName);
 	}
 	
 }
