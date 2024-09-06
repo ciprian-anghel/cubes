@@ -1,4 +1,4 @@
-package com.cubes.dto;
+package com.cubes.api.dto;
 
 import java.util.ArrayList;
 import java.util.List;

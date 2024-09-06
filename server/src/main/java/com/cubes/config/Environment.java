@@ -4,8 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 
-import com.cubes.service.CubeStorageService;
-
 public class Environment {
 	
 	private static final Logger log = LoggerFactory.getLogger(Environment.class);

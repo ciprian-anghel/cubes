@@ -5,6 +5,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import javax.annotation.PostConstruct;
 
@@ -14,7 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.cubes.config.Environment;
-import com.cubes.dto.OptionDto;
+import com.cubes.domain.entity.Option;
 import com.cubes.utils.FileUtils;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
@@ -28,11 +31,13 @@ public class CubeStorageService {
 	
 	private static final String LOCAL_STORAGE_PATH = "localStorage/";
 	private static final String FOLDER_PREFIX = "cubes";
+	private static final String ICON_PREFIX = "icon-";
 	
 	private final Bucket bucket;
 	private final Environment environment;
-	private final OptionDto optionRoot = new OptionDto();
 
+	private List<Option> options = new ArrayList<>();
+	
 	@Autowired
     public CubeStorageService(Bucket bucket, Environment environment) {
         this.bucket = bucket;
@@ -44,15 +49,18 @@ public class CubeStorageService {
     	initializeAssets();
     }
     
+    public List<Option> getOptions() {
+    	return Collections.unmodifiableList(options);
+    }
+    
     private void initializeAssets() {
     	log.info("initializeAssets - starting to initialize assets");
     	if (environment.isAlwaysDownloadAssets()) {
     		discardAndDownloadAssets();
-        	return;
     	} else {
     		downdloadAssetsIfNotInCache();
     	}
-    	initializeOptionRoot();
+    	processOptions();
     }
     
     private void discardAndDownloadAssets() {
@@ -95,34 +103,49 @@ public class CubeStorageService {
         }
     }
     
-    /*
-     * I do not like this approach 
-     */
-    private void initializeOptionRoot() {
-    	log.info("initializeOptionRoot - starting the initialization of assets into main option object");
-    	Path localStoragePath = Path.of(LOCAL_STORAGE_PATH);
-    	if (Files.notExists(localStoragePath)) {
+    private void processOptions() {
+    	log.info("processOptions - starting the creation of optios");
+
+    	Path cubesPath = Path.of(LOCAL_STORAGE_PATH, FOLDER_PREFIX);
+    	if (Files.notExists(cubesPath)) {
     		return;
     	}
-    	walkInDirectory(localStoragePath.toFile());
-    	
+    	mapFileToOption(cubesPath.toFile());
     }
     
-    // TREBUIE SA VIZUALIZEZ CUM SA PARCURG DRACIA
-    private void walkInDirectory(File directory) {
-    	File[] files = directory.listFiles();
-    	for (File file : files) {
-	    	if (file.isDirectory()) {
-				OptionDto optionDto = new OptionDto();
-				String iconName = "icon-" + file.getName() + ".png";
-				Path iconPath = Path.of(file.getParent(), iconName);
-				if (Files.exists(iconPath)) {
-					optionDto.setIconAssetPath(iconPath.toString());
-				}
-				
-				walkInDirectory(file);
-			}
-	    	// if file do something else
+    private void mapFileToOption(File file) {
+    	for (File f : file.listFiles()) {
+    		if (f.getName().startsWith(ICON_PREFIX)) {
+    			continue;
+    		}
+    		
+    		options.add(Option.builder()
+				.path(f.getPath())
+				.parentPath(f.getParent())
+				.iconPath(getIconPath(f))
+				.texturePath(f)
+				.name(f.getName())
+				.build());
+    		
+    		if (f.isDirectory()) {
+    			mapFileToOption(f);
+    		}
     	}
+    }
+    
+    private String getIconPath(File path) {
+    	if (path.getName().startsWith(ICON_PREFIX)) {
+    		return path.getName();
+    	}
+    	
+    	String parent = path.getParent();
+    	String name = path.getName();
+    	
+    	if (path.isDirectory()) {
+    		name = ICON_PREFIX + name + ".png";
+    	} else {
+    		name = ICON_PREFIX + name;
+    	}
+    	return Path.of(parent, name).toString();
     }
 }
