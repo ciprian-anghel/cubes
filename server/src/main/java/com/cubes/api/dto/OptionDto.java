@@ -15,10 +15,10 @@ public class OptionDto {
 
 	public static OptionDto toDto(Option option) {
 		OptionDto dto = new OptionDto();
-		dto.setPath(option.getPath());
-		dto.setParentPath(option.getParentPath());
-		dto.setIconPath(option.getIconPath());
-		dto.setTexturePath(option.getTexturePath());
+		dto.setPath(parsePathForJson(option.getPath()));
+		dto.setParentPath(parsePathForJson(option.getParentPath()));
+		dto.setIconPath(parsePathForJson(option.getIconPath()));
+		dto.setTexturePath(parsePathForJson(option.getTexturePath()));
 		dto.setName(option.getName());
 		return dto;
 	}
@@ -61,6 +61,13 @@ public class OptionDto {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+	
+	private static String parsePathForJson(String path) {
+		if (path != null) {
+			return path.toString().replace("\\", "/");
+		}
+		return path;
 	}
 
 }
