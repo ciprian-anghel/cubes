@@ -6,7 +6,9 @@ button {
     overflow: hidden;
 }
 
-.img-btn {
+button img {
     width: inherit;
     height: inherit;
+
+    object-fit: cover;
 }
