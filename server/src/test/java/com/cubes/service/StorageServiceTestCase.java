@@ -14,7 +14,7 @@ class StorageServiceTestCase {
 	
 	@Mock private Bucket bucketMock;
 	@Mock private Environment environmentMock;
-	@Mock private StorageProcessorService processorMock;
+	@Mock private StorageProcessor processorMock;
 	@Mock private FileUtils fileUtils;
 	
 	@InjectMocks

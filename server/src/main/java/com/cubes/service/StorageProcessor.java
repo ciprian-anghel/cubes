@@ -1,6 +1,7 @@
 package com.cubes.service;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -13,9 +14,9 @@ import org.springframework.stereotype.Component;
 import com.cubes.domain.entity.Option;
 
 @Component
-public class StorageProcessorService {
+public class StorageProcessor {
 	
-	private static final Logger log = LoggerFactory.getLogger(StorageProcessorService.class);
+	private static final Logger log = LoggerFactory.getLogger(StorageProcessor.class);
 	
 	private static final String ICON_PREFIX = "icon-";
 	
@@ -27,6 +28,25 @@ public class StorageProcessorService {
     	}
     	return mapFileToOption(cubesPath.toFile());
     }
+    
+    /**
+     * In google cloud storage, the blob name is actually the entire path name.
+     * 
+     * It is important that the {@code name} input parameter is String in order to not loose "/".
+     */
+	public void createDirectoriesFromPath(String stringPath) throws IOException {
+	    Path path = Path.of(stringPath);
+	    if (isGcsDirectory(stringPath) || Files.notExists(path)) {
+	        Files.createDirectories(path.getParent());
+	    }
+	}
+	
+	/**
+	 * Google Cloud Storage directories end with "/"
+	 */
+	public boolean isGcsDirectory(String path) {
+		return path.endsWith("/");
+	}
     
     private List<Option> mapFileToOption(File file) {
     	List<Option> options = new ArrayList<>();
@@ -65,5 +85,5 @@ public class StorageProcessorService {
     	}
     	return Path.of(parent, name).toString();
     }
-	
+    
 }

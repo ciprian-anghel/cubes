@@ -1,10 +1,33 @@
-The plan:
+[] Apply spring security using Firebase
+[] Use a filter, in this case CommonsRequestLoggingFilter
+```
 
-- 1. [x] Download from storage and cache assets on server
-- 2. [ ] Create the OptionsDto object using the folder structure of the assets
-- 3. [ ] Send the dto to client
-- 4. [ ] Client uses the dto to create the option menus
-- 5. [ ] Client uses API to download assets images on demand.
-
-To do on server:
-- 1. [ ] Create API which returns the image specified at input path.
+    public class CustomRequestLoggingFilter extends CommonsRequestLoggingFilter {
+	    @Override
+	    protected boolean shouldLog(HttpServletRequest request) {
+	        return logger.isDebugEnabled() &&
+	               !request.getRequestURL().toString().contains("/static")
+	    }
+	}
+```  
+```
+@Configuration
+public class RequestLoggingFilterConfig {
+ 
+    @Bean
+    public CustomRequestLoggingFilter logFilter() {
+        CustomRequestLoggingFilter filter
+          = new CustomRequestLoggingFilter();
+        filter.setIncludeQueryString(true);
+        filter.setIncludePayload(false);
+        filter.setMaxPayloadLength(10000);
+        filter.setIncludeHeaders(false);
+        filter.setAfterMessagePrefix("REQUEST DATA : ");
+        return filter;
+    }
+}
+``` 
+In application.properties
+``` 
+logging.level.<package of your filter>.CustomRequestLoggingFilter=DEBUG or whatever debug level
+```

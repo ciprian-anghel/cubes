@@ -1,6 +1,7 @@
 package com.cubes.api.dto;
 
 import com.cubes.domain.entity.Option;
+import com.cubes.service.StorageService;
 
 public class OptionDto {
 
@@ -65,7 +66,8 @@ public class OptionDto {
 	
 	private static String parsePathForJson(String path) {
 		if (path != null) {
-			return path.toString().replace("\\", "/");
+			return path.toString().replace("\\", "/")
+								  .replace(StorageService.STATIC_PATH, "");
 		}
 		return path;
 	}
