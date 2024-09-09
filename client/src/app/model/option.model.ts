@@ -1,7 +1,7 @@
 export interface Option {
-    id: string,
-    level: number,
-    texture: string,
-    icon: string,
-    children: Option[]
+    path: string;
+	parentPath: string;
+	iconPath: string;
+	texturePath: string;
+	name: string;
 }

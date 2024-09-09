@@ -1,4 +1,4 @@
-package com.cubes.service;
+package com.cubes.repository;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -14,7 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Repository;
 
 import com.cubes.config.Environment;
 import com.cubes.domain.entity.Option;
@@ -24,24 +24,25 @@ import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage.BlobListOption;
 
-@Service
-public class StorageService {
+@Repository
+public class FirebaseStorageRepository {
 	
-	private static final Logger log = LoggerFactory.getLogger(StorageService.class);
+	private static final Logger log = LoggerFactory.getLogger(FirebaseStorageRepository.class);
 	
 	public static final String STATIC_PATH = "src/main/resources/static";
 	private static final String ASSETS_PATH = STATIC_PATH + "/assets";
+	public static final String CUBES_PATH = ASSETS_PATH + "/cubes";
 	private static final String FOLDER_PREFIX = "cubes";
 	
 	private final Bucket bucket;
 	private final Environment environment;
-	private final StorageProcessor processor;
+	private final FirebaseStorageProcessor processor;
 	private final FileUtils fileUtils;
 
 	private List<Option> options = new ArrayList<>();
 	
 	@Autowired
-    public StorageService(Bucket bucket, Environment environment, StorageProcessor processor, FileUtils fileUtils) {
+    public FirebaseStorageRepository(Bucket bucket, Environment environment, FirebaseStorageProcessor processor, FileUtils fileUtils) {
         this.bucket = bucket;
         this.environment = environment;
         this.processor = processor;
@@ -64,11 +65,11 @@ public class StorageService {
     	} else {
     		loadAssetsFromCache();
     	}
-    	options = processor.processOptions(Path.of(ASSETS_PATH, FOLDER_PREFIX));
+    	options = processor.processOptions(Path.of(CUBES_PATH));
     }
     
     private void discardAndDownloadAssets() {
-    	discardCachedAssets(Paths.get(ASSETS_PATH).toFile());
+    	discardCachedAssets(Paths.get(CUBES_PATH).toFile());
     	downloadAssetsFromStorage();
     }
     
@@ -79,7 +80,7 @@ public class StorageService {
     
     private void loadAssetsFromCache() {
         log.info("Loading assets from cache...");
-        if (Files.exists(Path.of(ASSETS_PATH))) {
+        if (Files.exists(Path.of(CUBES_PATH))) {
             log.info("Cache found.");
         } else {
             log.info("Cache not found, downloading assets...");

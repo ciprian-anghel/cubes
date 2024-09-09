@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import com.cubes.exception.ErrorDto;
-import com.cubes.service.StorageProcessor;
 
 @ControllerAdvice
 public class AssetNotFoundExceptionHandler {

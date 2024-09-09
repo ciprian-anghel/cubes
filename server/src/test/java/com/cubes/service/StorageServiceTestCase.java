@@ -6,6 +6,8 @@ import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import com.cubes.config.Environment;
+import com.cubes.repository.FirebaseStorageRepository;
+import com.cubes.repository.FirebaseStorageProcessor;
 import com.cubes.utils.FileUtils;
 import com.google.cloud.storage.Bucket;
 
@@ -14,11 +16,11 @@ class StorageServiceTestCase {
 	
 	@Mock private Bucket bucketMock;
 	@Mock private Environment environmentMock;
-	@Mock private StorageProcessor processorMock;
+	@Mock private FirebaseStorageProcessor processorMock;
 	@Mock private FileUtils fileUtils;
 	
 	@InjectMocks
-	private StorageService service;
+	private FirebaseStorageRepository service;
 	
 	@Test
 	public void testInitializeAssets() {

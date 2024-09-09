@@ -1,9 +1,13 @@
 package com.cubes.domain.entity;
 
 import java.io.File;
+import java.nio.file.Path;
+
+import com.cubes.repository.FirebaseStorageRepository;
 
 public class Option {
 
+	private final int id;
 	private final String path;
 	private final String parentPath;
 	private final String iconPath;
@@ -11,6 +15,7 @@ public class Option {
 	private final String name;
 	
 	private Option(Builder builder) {
+		this.id = builder.id;
 		this.path = builder.path;
 		this.parentPath = builder.parentPath;
 		this.iconPath = builder.iconPath;
@@ -18,6 +23,10 @@ public class Option {
 		this.name = builder.name;	
 	}
 
+	public int getId() {
+		return id;
+	}
+	
 	public String getPath() {
 		return path;
 	}
@@ -43,30 +52,38 @@ public class Option {
 	}
 
 	public static class Builder {
+		private int id;
 		private String path;
 		private String parentPath;
 		private String iconPath;
 		private String texturePath;
 		private String name;
 		
+		public Builder id(int id) {
+			if (id <= 0) 
+				throw new IllegalArgumentException("id must be greater than 0");
+			this.id = id;
+			return this;
+		}
+		
 		public Builder path(String path) {
 			if (path == null || path.isBlank()) 
 				throw new IllegalArgumentException("path cannot be empty");
-			this.path = path;
+			this.path = removeStaticDirPrefixFromPath(path);
 			return this;
 		}
 		
 		public Builder parentPath(String parentPath) {
 			if (parentPath == null || parentPath.isBlank()) 
 				throw new IllegalArgumentException("parentPath cannot be empty");
-			this.parentPath = parentPath;
+			this.parentPath = cleanParentPath(parentPath);
 			return this;
 		}
 		
 		public Builder iconPath(String iconPath) {
 			if (iconPath == null || iconPath.isBlank()) 
 				throw new IllegalArgumentException("iconPath cannot be empty");
-			this.iconPath = iconPath;
+			this.iconPath = removeStaticDirPrefixFromPath(iconPath);
 			return this;
 		}
 		
@@ -74,7 +91,7 @@ public class Option {
 			if (texturePath == null || texturePath.isDirectory()) 
 				return this;
 			
-			this.texturePath = texturePath.getPath();
+			this.texturePath = removeStaticDirPrefixFromPath(texturePath.getPath());
 			return this;
 		}
 		
@@ -87,6 +104,28 @@ public class Option {
 		
 		public Option build() {
 			return new Option(this);
+		}
+		
+	    /* TODO: MOVE THIS TO SOME OTHER HELPER CLASS */
+		private String removeStaticDirPrefixFromPath(String path) {
+			if (path == null)
+				return null;
+			
+			return path.replace("\\", "/")
+					   .replace(FirebaseStorageRepository.STATIC_PATH, "");
+		}
+		
+		/* TODO: MOVE THIS TO SOME OTHER HELPER CLASS */
+		private String cleanParentPath(String parentPath) {
+			if (parentPath == null || isCubesPath(parentPath)) {
+				return null;
+			}
+			return removeStaticDirPrefixFromPath(parentPath);
+		}
+		
+		/* TODO: MOVE THIS TO SOME OTHER HELPER CLASS */
+		private boolean isCubesPath(String path) {
+		    return Path.of(path).equals(Path.of(FirebaseStorageRepository.CUBES_PATH));
 		}
 	}
 }

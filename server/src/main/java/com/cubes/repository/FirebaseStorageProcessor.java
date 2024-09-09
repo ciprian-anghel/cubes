@@ -1,4 +1,4 @@
-package com.cubes.service;
+package com.cubes.repository;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,11 +14,13 @@ import org.springframework.stereotype.Component;
 import com.cubes.domain.entity.Option;
 
 @Component
-public class StorageProcessor {
+public class FirebaseStorageProcessor {
 	
-	private static final Logger log = LoggerFactory.getLogger(StorageProcessor.class);
+	private static final Logger log = LoggerFactory.getLogger(FirebaseStorageProcessor.class);
 	
 	private static final String ICON_PREFIX = "icon-";
+	
+	private static int idCounter = 0;
 	
     public List<Option> processOptions(Path cubesPath) {
     	log.info("Starting the creation of options.");
@@ -56,6 +58,7 @@ public class StorageProcessor {
     		}
     		
     		options.add(Option.builder()
+    			.id(++idCounter)
 				.path(f.getPath())
 				.parentPath(f.getParent())
 				.iconPath(getIconPath(f))

@@ -1,29 +1,24 @@
 package com.cubes.api.dto;
 
-import com.cubes.domain.entity.Option;
-import com.cubes.service.StorageService;
-
 public class OptionDto {
 
+	private int id;
 	private String path;
 	private String parentPath;
 	private String iconPath;
 	private String texturePath;
 	private String name;
 
-	private OptionDto() {
+	public OptionDto() {}
+	
+	public int getId() {
+		return id;
 	}
 
-	public static OptionDto toDto(Option option) {
-		OptionDto dto = new OptionDto();
-		dto.setPath(parsePathForJson(option.getPath()));
-		dto.setParentPath(parsePathForJson(option.getParentPath()));
-		dto.setIconPath(parsePathForJson(option.getIconPath()));
-		dto.setTexturePath(parsePathForJson(option.getTexturePath()));
-		dto.setName(option.getName());
-		return dto;
+	public void setId(int id) {
+		this.id = id;
 	}
-
+	
 	public String getPath() {
 		return path;
 	}
@@ -62,14 +57,6 @@ public class OptionDto {
 
 	public void setName(String name) {
 		this.name = name;
-	}
-	
-	private static String parsePathForJson(String path) {
-		if (path != null) {
-			return path.toString().replace("\\", "/")
-								  .replace(StorageService.STATIC_PATH, "");
-		}
-		return path;
 	}
 
 }
