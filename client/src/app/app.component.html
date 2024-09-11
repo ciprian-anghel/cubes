@@ -1,11 +1,13 @@
 <div class="main-container">
   <section class="section-customization">
-    <app-options-navigation/>
-    <app-options-navigation/>
-    <app-options-navigation/>
+    <app-options-navigation [optionNavigationLevel]=1 />
+    <app-options-navigation [optionNavigationLevel]=2 />
+    <app-options-navigation [optionNavigationLevel]=3 />
     <app-character class="character-container round-border--5"/>
   </section>
   <section class="section-print">
     <app-print/>
   </section>
 </div>
+
+<!-- https://www.geeksforgeeks.org/pass-data-between-siblings-in-angular/#approach-1-using-shared-service -->

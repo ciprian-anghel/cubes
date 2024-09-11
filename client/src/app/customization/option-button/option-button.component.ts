@@ -1,5 +1,7 @@
-import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
-import { BackendCommunicationService } from '../../api/service/backend-communication/backend-communication.service';
+import { Component, inject, input, OnInit, signal } from '@angular/core';
+import { environment } from '../../../environments/environment';
+import { Option } from '../../model/option.model';
+import { SharedService } from '../../service/shared.service';
 
 @Component({
   selector: 'app-option-button',
@@ -10,24 +12,19 @@ import { BackendCommunicationService } from '../../api/service/backend-communica
 })
 export class OptionButtonComponent implements OnInit {
 
-  private apiService = inject(BackendCommunicationService);
-  private destroyRef = inject(DestroyRef);
-  
-  imageUrl = signal<string | undefined>('http://localhost:8080/assets/cubes/icon-head.png');
+  public  option = input<Option>({	id: 0, path: '', parentPath: '', iconPath: '', texturePath: '', name: ''});   //TODO: add a default option
 
-  private tempAssetPath: string = 'localStorage/cubes/body/body-cyan.png';
+  protected imageUrl = signal<string | undefined>(''); 
+  
+  private sharedServce = inject(SharedService);
+  private readonly serverInstanceUrl: string = environment.serverInstanceUrl;
 
   ngOnInit(): void {
-    // const subscription = this.apiService.downloadAsset(this.tempAssetPath)
-    //   .subscribe({
-    //     next: (asset) => {          
-    //       this.base64Image.set(asset.data);
-    //     },
-    //   });
+    this.imageUrl.set(this.serverInstanceUrl + this.option().iconPath);
+  }
 
-    // this.destroyRef.onDestroy(() => {
-    //   subscription.unsubscribe();
-    // });
+  selectOption() {
+    console.log("Option selected: " + this.option().id);
   }
 
 }
