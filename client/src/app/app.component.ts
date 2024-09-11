@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { PrintComponent } from "./print/print.component";
 import { OptionsNavigationComponent } from "./customization/options-navigation/options-navigation.component";
 import { CharacterComponent } from "./customization/character/character.component";
+import { SharedService } from './service/shared.service';
 
 @Component({
   selector: 'app-root',
@@ -13,4 +14,7 @@ import { CharacterComponent } from "./customization/character/character.componen
 })
 export class AppComponent {
   title = 'cubes';
+
+  private sharedService = inject(SharedService);
+  protected levelOneSelection = this.sharedService.sharedData.asReadonly();
 }

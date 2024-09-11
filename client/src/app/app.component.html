@@ -1,7 +1,7 @@
 <div class="main-container">
   <section class="section-customization">
     <app-options-navigation [optionNavigationLevel]=1 />
-    <app-options-navigation [optionNavigationLevel]=2 />
+    <app-options-navigation [optionNavigationLevel]=2 [optionSelectedId]="levelOneSelection()"/>
     <app-options-navigation [optionNavigationLevel]=3 />
     <app-character class="character-container round-border--5"/>
   </section>

@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, input, OnInit, signal } from '@angular/core';
+import { Component, DestroyRef, inject, input, computed, OnInit, signal, effect } from '@angular/core';
 import { OptionButtonComponent } from "../option-button/option-button.component";
 import { Option } from '../../model/option.model';
 import { BackendCommunicationService } from '../../api/service/backend-communication/backend-communication.service';
@@ -13,11 +13,18 @@ import { BackendCommunicationService } from '../../api/service/backend-communica
 export class OptionsNavigationComponent implements OnInit {
   
   public optionNavigationLevel = input.required< 1 | 2 | 3 >();
+  public optionSelectedId = input<number>(0);
 
-  protected options = signal<Option[]>([]);
+  protected options = signal<Option[]>([]);  
 
   private backendService = inject(BackendCommunicationService);
   private destroyRef = inject(DestroyRef);
+
+  constructor() {
+    effect(() => {
+      this.loadChildren(this.optionSelectedId())
+    });
+  } 
 
   ngOnInit(): void {
     if (this.optionNavigationLevel() == 1) {
@@ -32,28 +39,28 @@ export class OptionsNavigationComponent implements OnInit {
       
       this.destroyRef.onDestroy(() => {
         subscription.unsubscribe();
-      });
-      
+      });      
     }
-
   }
 
  
-  // loadChildren(parentId: number) {
-  //   this.options.set([]);
-  //   const subscription = this.backendService.getChildrenOf(parentId)
-  //      .subscribe({
-  //        next: (options) => {
-  //          options.forEach(option => {
-  //            this.options.update(values => [...values, option])
-  //          });
-  //        }
-  //      });
+  loadChildren(parentId: number) {
+    if (parentId <= 0) return;
+
+    const subscription = this.backendService.getChildrenOf(parentId)
+       .subscribe({
+         next: (resultOptions) => {
+          this.options.set([]);
+          resultOptions.forEach(option => {
+             this.options.update(values => [...values, option])
+           });
+         }
+       });
       
-  //    this.destroyRef.onDestroy(() => {
-  //      subscription.unsubscribe();
-  //    });
-  // }
+     this.destroyRef.onDestroy(() => {
+       subscription.unsubscribe();
+     });
+  }
 
   //Asta e chemata de multe ori
   // ngOnChanges(changes: SimpleChanges): void {
