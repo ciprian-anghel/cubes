@@ -5,6 +5,7 @@ import { Injectable, input, signal } from '@angular/core';
 })
 export class SharedService {
 
-  sharedData = signal<number>(0);
+  levelOneSelection = signal<number>(0);
+  levelTwoSelection = signal<number>(0);
 
 }

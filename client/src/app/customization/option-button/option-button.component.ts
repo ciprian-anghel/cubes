@@ -13,6 +13,7 @@ import { SharedService } from '../../service/shared.service';
 export class OptionButtonComponent implements OnInit, OnChanges {
 
   public option = input<Option>({	id: 0, path: '', parentPath: '', iconPath: '', texturePath: '', name: ''});   //TODO: add a default option
+  public level = input<1 | 2 | 3>();
 
   protected imageUrl = "";
   
@@ -42,7 +43,17 @@ export class OptionButtonComponent implements OnInit, OnChanges {
     console.log("Option selected: " + this.option().id);
     if (!this.option().texturePath) {
       console.log("Bundle with id selected: " + this.option().id);
-      this.sharedService.sharedData.set(this.option().id);
+      
+      if (this.level() == 1) {
+        this.sharedService.levelOneSelection.set(this.option().id);
+        return;
+      }
+
+      if (this.level() == 2) {
+        this.sharedService.levelTwoSelection.set(this.option().id);
+        return;
+      }
+      
     }    
   }
 

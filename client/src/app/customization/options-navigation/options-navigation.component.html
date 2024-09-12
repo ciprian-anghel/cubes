@@ -1,5 +1,5 @@
 <div class="options-navigation-container round-border--5">
      @for (option of options(); track $index) {
-        <app-option-button [option]="option" />
+        <app-option-button [level]="buttonLevel()" [option]="option" />
      }
 </div>

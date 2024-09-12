@@ -12,7 +12,8 @@ import { BackendCommunicationService } from '../../api/service/backend-communica
 })
 export class OptionsNavigationComponent implements OnInit {
   
-  public optionNavigationLevel = input.required< 1 | 2 | 3 >();
+  public componentId = input.required< 1 | 2 | 3 >();
+  public buttonLevel = computed(() => this.componentId());
   public optionSelectedId = input<number>(0);
 
   protected options = signal<Option[]>([]);  
@@ -20,6 +21,7 @@ export class OptionsNavigationComponent implements OnInit {
   private backendService = inject(BackendCommunicationService);
   private destroyRef = inject(DestroyRef);
 
+  //TODO: convert effect to computes --- per documentation, effect should not be used for this scenario
   constructor() {
     effect(() => {
       this.loadChildren(this.optionSelectedId())
@@ -27,7 +29,7 @@ export class OptionsNavigationComponent implements OnInit {
   } 
 
   ngOnInit(): void {
-    if (this.optionNavigationLevel() == 1) {
+    if (this.componentId() == 1) {
       const subscription = this.backendService.getRootElements()
         .subscribe({
           next: (options) => {

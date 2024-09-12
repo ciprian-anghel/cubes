@@ -16,5 +16,6 @@ export class AppComponent {
   title = 'cubes';
 
   private sharedService = inject(SharedService);
-  protected levelOneSelection = this.sharedService.sharedData.asReadonly();
+  protected levelOneSelection = this.sharedService.levelOneSelection.asReadonly();
+  protected levelTwoSelection = this.sharedService.levelTwoSelection.asReadonly();
 }
