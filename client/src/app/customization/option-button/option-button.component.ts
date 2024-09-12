@@ -32,9 +32,14 @@ export class OptionButtonComponent implements OnInit {
   }
 
   selectOption() {
-    this.sharedService.reset();
-    if (!this.option().texturePath) {
-      this.sharedService.setSelectedOptionState(this.option().id, this.navigationId());
+    this.sharedService.resetSelectedCategoryOption();
+
+    if (this.option().texturePath) {
+
     }
+
+    this.sharedService.setSelectedCategoryOption(this.option().id, this.navigationId());    
   }
+
+  // private shareSelectedOptions
 }

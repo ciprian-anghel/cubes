@@ -6,17 +6,19 @@ import { BehaviorSubject } from 'rxjs';
 })
 export class SharedService {
 
-  private selectedOptionState = new BehaviorSubject<{optionId: number, navigationId: number}>({optionId: 0, navigationId: 0});
+  private selectedCategoryOption = new BehaviorSubject<{optionId: number, navigationId: number}>({optionId: 0, navigationId: 0});
 
-  navigationData$ = this.selectedOptionState.asObservable();
+  selectedCategoryOption$ = this.selectedCategoryOption.asObservable();
 
-  setSelectedOptionState(optionId: number, navigationId: number) {
-    this.selectedOptionState.next(
+  setSelectedCategoryOption(optionId: number, navigationId: number) {
+    this.selectedCategoryOption.next(
       {optionId: optionId, navigationId: navigationId}
     );
   }
 
-  reset() {
-    this.selectedOptionState.next({optionId: 0, navigationId: 0});
+  resetSelectedCategoryOption() {
+    this.selectedCategoryOption.next({optionId: 0, navigationId: 0});
   }
+
+
 }

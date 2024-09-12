@@ -24,7 +24,7 @@ export class OptionsNavigationComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
     
   ngOnInit(): void {
-    this.subscriptions.push(this.sharedService.navigationData$.subscribe((option) => {
+    this.subscriptions.push(this.sharedService.selectedCategoryOption$.subscribe((option) => {
       this.loadChildren(option.optionId, option.navigationId);
     }));
 

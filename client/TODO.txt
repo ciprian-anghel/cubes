@@ -1,0 +1,17 @@
+Additional stuff:
+-- Search for TODOs
+
+Creating character:
+[] Simple POC without ThreeJs
+    - [] a few areas to fill textures when selecting stuff
+    - [] how can I associate character parts with the selection?
+            - Maybe I should add a new field in the object, beside texturePath, I should have the name of the closest parent folder
+                which will corelate with the element of the character.
+                for example 
+                {
+                    "characterPart" : "head"
+                    "characterPart" : "mouth"
+                }
+            - each characterPart should also be in the character build
+    - [] how can I share the selected parts with the Print?
+[] Understand how can I use https://threejs.org/
