@@ -14,8 +14,4 @@ import { SharedService } from './service/shared.service';
 })
 export class AppComponent {
   title = 'cubes';
-
-  private sharedService = inject(SharedService);
-  protected levelOneSelection = this.sharedService.levelOneSelection.asReadonly();
-  protected levelTwoSelection = this.sharedService.levelTwoSelection.asReadonly();
 }

@@ -1,4 +1,4 @@
-import { Component, OnChanges, SimpleChanges } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-character',
@@ -7,10 +7,6 @@ import { Component, OnChanges, SimpleChanges } from '@angular/core';
   templateUrl: './character.component.html',
   styleUrl: './character.component.css'
 })
-export class CharacterComponent implements OnChanges {
-
-  ngOnChanges(changes: SimpleChanges): void {
-    console.log("onChange");
-  }
+export class CharacterComponent {
 
 }

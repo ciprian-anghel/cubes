@@ -1,7 +1,9 @@
-import { Component, DestroyRef, inject, input, computed, OnInit, signal, effect } from '@angular/core';
+import { Component, DestroyRef, inject, input, OnInit, signal } from '@angular/core';
 import { OptionButtonComponent } from "../option-button/option-button.component";
 import { Option } from '../../model/option.model';
 import { BackendCommunicationService } from '../../api/service/backend-communication/backend-communication.service';
+import { SharedService } from '../../service/shared.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-options-navigation',
@@ -10,54 +12,84 @@ import { BackendCommunicationService } from '../../api/service/backend-communica
   templateUrl: './options-navigation.component.html',
   styleUrl: './options-navigation.component.css'
 })
-export class OptionsNavigationComponent implements OnInit {
+export class OptionsNavigationComponent implements OnInit {  
   
-  public componentId = input.required< 1 | 2 | 3 >();
-  
+  public navigationId = input.required< 1 | 2 | 3 >();  
   protected options = signal<Option[]>([]);  
 
+  private sharedService = inject(SharedService);
   private backendService = inject(BackendCommunicationService);
+
+  private subscriptions: Subscription[] = [];
   private destroyRef = inject(DestroyRef);
-
-  //TODO: convert effect to computes --- per documentation, effect should not be used for this scenario
-  constructor() {
     
-  } 
-
   ngOnInit(): void {
-    if (this.componentId() == 1) {
-      const subscription = this.backendService.getRootElements()
+    this.subscriptions.push(this.sharedService.navigationData$.subscribe((option) => {
+      this.loadChildren(option.optionId, option.navigationId);
+    }));
+
+    if (this.isInsideNavigationOne()) {
+      this.loadRootElements();
+    }
+
+    this.destroyRef.onDestroy(() => {
+      this.subscriptions.forEach(s => s.unsubscribe());
+    });
+  }
+ 
+  loadChildren(parentId: number, optionNavigationId: number) {
+    if (parentId <= 0) {
+      return;
+    }
+
+    if (this.isInsideNavigationTwoWithSelectedOptionOnNavigationOne(optionNavigationId)) {
+      this.loadOptionsForId(parentId);   
+
+    } else if (this.isInsideNavigationThreeWithSelectedOptionOnNavigationTwo(optionNavigationId)) {
+      this.loadOptionsForId(parentId);
+
+    } else if (this.isInsideNavigationThreeWithSelectedOptionOnNavigationOne(optionNavigationId)) {
+      this.options.set([]);
+    }
+  }
+
+  private loadRootElements() {
+    this.subscriptions.push(this.backendService.getRootElements()
         .subscribe({
           next: (options) => {
             options.forEach(option => {
               this.options.update(values => [...values, option])
             });
           }
-        });
-      
-      this.destroyRef.onDestroy(() => {
-        subscription.unsubscribe();
-      });      
-    }
+        }));
   }
 
- 
-  loadChildren(parentId: number) {
-    if (parentId <= 0) return;
+  private loadOptionsForId(parentId: number) {
+    this.subscriptions.push(this.backendService.getChildrenOf(parentId)
+      .subscribe({
+        next: (resultOptions) => {
+        this.options.set([]);
+        resultOptions.forEach(option => {
+            this.options.update(values => [...values, option])
+          });
+        }
+      }));
+  }
 
-    const subscription = this.backendService.getChildrenOf(parentId)
-       .subscribe({
-         next: (resultOptions) => {
-          this.options.set([]);
-          resultOptions.forEach(option => {
-             this.options.update(values => [...values, option])
-           });
-         }
-       });
-      
-     this.destroyRef.onDestroy(() => {
-       subscription.unsubscribe();
-     });
+  private isInsideNavigationOne(): boolean {
+    return this.navigationId() === 1;
+  }
+
+  private isInsideNavigationTwoWithSelectedOptionOnNavigationOne(optionNavigationId: number): boolean {
+    return this.navigationId() === 2 && optionNavigationId === 1;
+  }
+
+  private isInsideNavigationThreeWithSelectedOptionOnNavigationTwo(optionNavigationId: number): boolean {
+    return this.navigationId() === 3 && optionNavigationId === 2;
+  }
+
+  private isInsideNavigationThreeWithSelectedOptionOnNavigationOne(optionNavigationId: number): boolean {
+    return this.navigationId() === 3 && optionNavigationId === 1;
   }
 
 }
