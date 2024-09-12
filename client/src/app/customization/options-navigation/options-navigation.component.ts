@@ -53,6 +53,7 @@ export class OptionsNavigationComponent implements OnInit {
     }
   }
 
+  //TODO: Implement error handling
   private loadRootElements() {
     this.subscriptions.push(this.backendService.getRootElements()
         .subscribe({
@@ -64,6 +65,7 @@ export class OptionsNavigationComponent implements OnInit {
         }));
   }
 
+  //TODO: Implement error handling
   private loadOptionsForId(parentId: number) {
     this.subscriptions.push(this.backendService.getChildrenOf(parentId)
       .subscribe({
