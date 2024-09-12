@@ -13,9 +13,7 @@ import { BackendCommunicationService } from '../../api/service/backend-communica
 export class OptionsNavigationComponent implements OnInit {
   
   public componentId = input.required< 1 | 2 | 3 >();
-  public buttonLevel = computed(() => this.componentId());
-  public optionSelectedId = input<number>(0);
-
+  
   protected options = signal<Option[]>([]);  
 
   private backendService = inject(BackendCommunicationService);
@@ -23,9 +21,7 @@ export class OptionsNavigationComponent implements OnInit {
 
   //TODO: convert effect to computes --- per documentation, effect should not be used for this scenario
   constructor() {
-    effect(() => {
-      this.loadChildren(this.optionSelectedId())
-    });
+    
   } 
 
   ngOnInit(): void {
@@ -63,10 +59,5 @@ export class OptionsNavigationComponent implements OnInit {
        subscription.unsubscribe();
      });
   }
-
-  //Asta e chemata de multe ori
-  // ngOnChanges(changes: SimpleChanges): void {
-  //   console.log("parent path is here: " + this.parentPath());
-  // }
 
 }
