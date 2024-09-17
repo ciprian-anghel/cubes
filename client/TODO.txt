@@ -15,3 +15,4 @@ Creating character:
             - each characterPart should also be in the character build
     - [] how can I share the selected parts with the Print?
 [] Understand how can I use https://threejs.org/
+        https://www.youtube.com/watch?v=9XvZ3ChtT9M

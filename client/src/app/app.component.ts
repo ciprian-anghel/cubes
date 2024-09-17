@@ -2,13 +2,12 @@ import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { PrintComponent } from "./print/print.component";
 import { OptionsNavigationComponent } from "./customization/options-navigation/options-navigation.component";
-import { CharacterComponent } from "./customization/character/character.component";
-import { SharedService } from './service/shared.service';
+import { CharacterCanvasComponent } from "./customization/character/character-canvas.component";
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, PrintComponent, OptionsNavigationComponent, CharacterComponent],
+  imports: [RouterOutlet, PrintComponent, OptionsNavigationComponent, CharacterCanvasComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
