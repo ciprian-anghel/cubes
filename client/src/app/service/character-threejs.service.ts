@@ -1,64 +1,97 @@
 import { Injectable, ElementRef, OnDestroy } from '@angular/core';
-import { Scene, PerspectiveCamera, WebGLRenderer, AmbientLight, DirectionalLight } from 'three';
-import WebGL from 'three/examples/jsm/capabilities/WebGL.js';
+import { Scene, PerspectiveCamera, WebGLRenderer, AmbientLight, DirectionalLight, CubeTextureLoader, WebGLRendererParameters } from 'three';
 import { GLTF, GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-
+import WebGL from 'three/examples/jsm/capabilities/WebGL.js';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ThreeService implements OnDestroy {
+
+  private container!: ElementRef<HTMLDivElement>;
+
   private scene!: Scene;
   private camera!: PerspectiveCamera;
   private renderer!: WebGLRenderer;
   private animationFrameId: number = 0;
   private controls!: OrbitControls;
-
-  private sofLight!: AmbientLight;
+  private ambientLigth!: AmbientLight;
   private directionalLight!: DirectionalLight;
 
+  private background = [
+    "/images/environment/mockwall2.png",
+    "/images/environment/mockwall2.png",
+    "/images/environment/mockwall2.png",
+    "/images/environment/mockwall2.png",
+    "/images/environment/mockwall2.png",
+    "/images/environment/mockwall2.png"
+  ];
+
   initialize(container: ElementRef<HTMLDivElement>): void {
-    if (!this.isWebGl2Supported(container)) {
+    this.container = container;
+
+    if (!this.isWebGl2Supported(this.container)) {
       return;
     }
 
     this.setScene();
-    this.setRenderer(container);
-    this.setCamera(container);
+    this.setRenderer();
+    this.setCamera();
     this.setLight();
     this.setControls();
     this.setGltfLoader();   
   }
 
+  public resize(): void {
+    const containerWidth = this.container.nativeElement.clientWidth;
+    const containerHeight = this.container.nativeElement.clientHeight;
+
+    this.camera.aspect = containerWidth / containerHeight;
+    this.camera.updateProjectionMatrix();
+
+    this.renderer.setSize(containerWidth, containerHeight);    
+    // Ensure the renderer updates the next frame
+    this.renderer.setPixelRatio(window.devicePixelRatio);
+  }
+
   private setScene(): void {
+    const backgroundEnvironment = new CubeTextureLoader().load(this.background);
+    
     this.scene = new Scene();
+    this.scene.background = backgroundEnvironment;
   }
 
-  private setRenderer(container: ElementRef<HTMLDivElement>): void {
-    this.renderer = new WebGLRenderer();
+  private setRenderer(): void {
+    const parameters: WebGLRendererParameters = {antialias: true};
+    this.renderer = new WebGLRenderer(parameters);
     this.renderer.setSize(
-      container.nativeElement.clientWidth,
-      container.nativeElement.clientHeight
+      this.container.nativeElement.clientWidth,
+      this.container.nativeElement.clientHeight
     );
-    container.nativeElement.appendChild(this.renderer.domElement);
+    this.container.nativeElement.appendChild(this.renderer.domElement);
   }
 
-  private setCamera(container: ElementRef<HTMLDivElement>): void {
+  private setCamera(): void {
     this.camera = new PerspectiveCamera(
       70,
-      container.nativeElement.clientWidth / container.nativeElement.clientHeight,
+      this.container.nativeElement.clientWidth / this.container.nativeElement.clientHeight,
       1,
       1000
     );
-    this.camera.position.set(0, 0, 15);
+    this.camera.position.set(10, 1, 0);
   }
 
   private setLight(): void {
-    this.sofLight = new AmbientLight(0xffffff, 0.5); // Soft white light
-    this.directionalLight = new DirectionalLight(0xffffff, 1);
-    this.directionalLight.position.set(0, 1, 1).normalize(); // Direction of the light
-  }
+    this.directionalLight = new DirectionalLight(0xffffff, 1); 
+    this.directionalLight.position.set(500, 500, 500).normalize();
+    this.directionalLight.castShadow = true;
+    this.scene.add(this.directionalLight);
+
+    this.ambientLigth = new AmbientLight(0xffffff, 0.5);
+    this.scene.add(this.ambientLigth);    
+  }  
+    
 
   private setControls(): void {
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
@@ -68,17 +101,15 @@ export class ThreeService implements OnDestroy {
   private setGltfLoader(): void {
     const loader = new GLTFLoader();
     loader.load(
-      '/cube.glb',
+      '/model/cube.glb',
       (gltf) => {
-        this.scene.add(gltf.scene);        
-        this.scene.add(this.sofLight);
-        this.scene.add(this.directionalLight);
-
+        this.scene.add(gltf.scene);
+        this.scene.position.y = this.scene.position.y - 1;
         this.animate(gltf);        
       },
       undefined,
       (error) => {
-        console.error('An error happened:', error);
+        console.error('Oops! We have an error:', error);
       }
     );
   }
@@ -86,6 +117,7 @@ export class ThreeService implements OnDestroy {
   private animate(cube: GLTF) {
     requestAnimationFrame(() => this.animate(cube));
     this.renderer.render(this.scene, this.camera);
+    // console.log("x: " + this.camera.position.x + ", y: " + this.camera.position.y + ", z: " + this.camera.position.z);
   }
 
   ngOnDestroy(): void {
