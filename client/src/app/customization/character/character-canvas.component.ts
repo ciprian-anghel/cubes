@@ -12,8 +12,8 @@ import { fromEvent, Observable, Subscription } from 'rxjs';
 export class CharacterCanvasComponent implements AfterViewInit, OnDestroy, OnInit {
   @ViewChild('canvasContainer', { static: true }) canvasContainer!: ElementRef<HTMLDivElement>;
 
-  private resizeObservable$!: Observable<Event>
-  private resizeSubscription$!: Subscription
+  private resizeObservable$!: Observable<Event>;
+  private resizeSubscription$!: Subscription;
 
   constructor(private threeService: ThreeService) {}
 
@@ -30,6 +30,7 @@ export class CharacterCanvasComponent implements AfterViewInit, OnDestroy, OnIni
 
   ngOnDestroy(): void {
     this.threeService.ngOnDestroy();
+    this.resizeSubscription$.unsubscribe();
   }
   
 }

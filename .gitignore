@@ -1,2 +1,4 @@
 /.metadata/
 /application_default_credentials.json
+/ignore/
+/server/src/main/resources/static/assets/cubes/

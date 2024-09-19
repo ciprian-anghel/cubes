@@ -43,6 +43,10 @@ export class ThreeService implements OnDestroy {
     this.setGltfLoader();   
   }
 
+  /**
+   * In order to adjust the rendered image based on the window size,
+   * the method should be called inside the container component when window is resized.
+   */
   public resize(): void {
     const containerWidth = this.container.nativeElement.clientWidth;
     const containerHeight = this.container.nativeElement.clientHeight;
@@ -79,7 +83,9 @@ export class ThreeService implements OnDestroy {
       1,
       1000
     );
-    this.camera.position.set(10, 1, 0);
+    // this.camera.position.set(10, 1, 0);
+    this.camera.position.set(10, 1.3, -5);
+    // 9.907862992115486, y: 1.2781153154665779, z: -4.9195707280691385
   }
 
   private setLight(): void {

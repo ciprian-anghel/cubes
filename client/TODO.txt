@@ -1,18 +1,36 @@
 Additional stuff:
--- Search for TODOs
 
-Creating character:
-[] Simple POC without ThreeJs
-    - [] a few areas to fill textures when selecting stuff
-    - [] how can I associate character parts with the selection?
-            - Maybe I should add a new field in the object, beside texturePath, I should have the name of the closest parent folder
-                which will corelate with the element of the character.
-                for example 
-                {
-                    "characterPart" : "head"
-                    "characterPart" : "mouth"
-                }
-            - each characterPart should also be in the character build
-    - [] how can I share the selected parts with the Print?
-[] Understand how can I use https://threejs.org/
-        https://www.youtube.com/watch?v=9XvZ3ChtT9M
+[] 3D - create assets using different simple colors - icons + textures and load them in the storage
+[] 3D - investigate how can I add mesh to character in blender and how can I change them in threejs
+see https://chatgpt.com/share/66eaa324-2d80-8000-aeaa-c81dffb489a3
+[] 3D - use the selected textures on the character model
+[] 3D - investigate how can I add overlapping textures on head.
+The idea is to have eyes, mouth, hair textures on the entire expanded cube part but with transparency and then overlap all of them.
+https://chatgpt.com/share/66eaa3f7-db14-8000-8599-a52d46704517
+[] 3D - create in blender some additional elements, to make the scene more interesting.
+
+[] UI - Improve the quality of UI
+[] UI - Make it accessible on multiple devices
+
+[] Storage - add logic to automatically reload all assets if a trigger exist. 
+The trigger can be a txt file which will be deleted after asset reload.
+[] Storage - remove the environment property which triggers reloading of assets.
+
+[] Search for TODOs
+
+[] Assets - Create some real assets
+
+[] Dockerize it - use volumes to persist previously downloaded assets
+
+[] Functionality - Add real time drawing capabilities.
+[] Functionality - Create logic to import and use assets bases on some templates.
+
+
+
+[] Monetization - Use google ads.
+[] Monetization - CEO, and other stuff
+[] Monetization - Add donate option?
+[] Monetization - Add Term of service - free to use, do not use anything for monetization.
+
+TBD: Account - Create account in order to download.
+TBD: Store assets created by logged in users.
