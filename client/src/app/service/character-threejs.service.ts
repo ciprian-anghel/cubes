@@ -1,13 +1,17 @@
-import { Injectable, ElementRef, OnDestroy } from '@angular/core';
-import { Scene, PerspectiveCamera, WebGLRenderer, AmbientLight, DirectionalLight, CubeTextureLoader, WebGLRendererParameters } from 'three';
+import { Injectable, ElementRef, OnDestroy, inject, DestroyRef } from '@angular/core';
+import { Scene, PerspectiveCamera, WebGLRenderer, AmbientLight, DirectionalLight, CubeTextureLoader, WebGLRendererParameters, TextureLoader, Mesh, MeshStandardMaterial, RepeatWrapping, Group, Object3DEventMap } from 'three';
 import { GLTF, GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import WebGL from 'three/examples/jsm/capabilities/WebGL.js';
+import { SharedService } from './shared.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ThreeService implements OnDestroy {
+ 
+  private sharedService = inject(SharedService);
 
   private container!: ElementRef<HTMLDivElement>;
 
@@ -18,6 +22,8 @@ export class ThreeService implements OnDestroy {
   private controls!: OrbitControls;
   private ambientLigth!: AmbientLight;
   private directionalLight!: DirectionalLight;
+
+  private destroyRef = inject(DestroyRef);
 
   private background = [
     "/images/environment/mockwall2.png",
@@ -41,6 +47,22 @@ export class ThreeService implements OnDestroy {
     this.setLight();
     this.setControls();
     this.setGltfLoader();   
+  }
+  
+  constructor() {
+    //TODO: Maybe change to this unsubscribe logic in all places
+    this.sharedService.selectedCategoryOption$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((selectedItem) => {
+        console.log("The hell, de ce se cheama de 2 ori: " + selectedItem.optionId);
+      });
+  }
+
+  ngOnDestroy(): void {
+    cancelAnimationFrame(this.animationFrameId);
+    if (this.renderer) {
+      this.renderer.dispose();
+    }
   }
 
   /**
@@ -109,7 +131,9 @@ export class ThreeService implements OnDestroy {
     loader.load(
       '/model/cube.glb',
       (gltf) => {
-        this.scene.add(gltf.scene);
+        const model = gltf.scene;
+        this.loadTextures(model);
+        this.scene.add(model);
         this.scene.position.y = this.scene.position.y - 1;
         this.animate(gltf);        
       },
@@ -120,17 +144,41 @@ export class ThreeService implements OnDestroy {
     );
   }
 
+  private loadTextures(model: Group<Object3DEventMap>) {
+    model.traverse((child) => {          
+      if ((child as Mesh).isMesh) {
+        const mesh: Mesh = child as Mesh;
+        let texture;
+        if (mesh.name === "head") {
+          texture = new TextureLoader().load("http://localhost:8080/assets/cubes/head/pink-head.png");
+        } else if (mesh.name === "feet") {
+          texture = new TextureLoader().load("http://localhost:8080/assets/cubes/feet/pink-feet.png");
+        } else if (mesh.name.includes("body")) {
+          //multiple body because body includes body + hands objects
+          texture = new TextureLoader().load("http://localhost:8080/assets/cubes/body/pink-body.png");
+        }
+
+        if (Array.isArray(mesh)) {
+          return;              
+        } else {
+          console.log(mesh.material);
+          const material = mesh.material as MeshStandardMaterial;
+          if (material.map) {
+            if (texture) {
+              texture.flipY = false; // Prevents the rotation of texture. This keeps the same behaviour as in blender
+              material.map = texture;
+              material.needsUpdate = true;
+            }
+          }
+        }            
+      }
+    });
+  }
+
   private animate(cube: GLTF) {
     requestAnimationFrame(() => this.animate(cube));
     this.renderer.render(this.scene, this.camera);
     // console.log("x: " + this.camera.position.x + ", y: " + this.camera.position.y + ", z: " + this.camera.position.z);
-  }
-
-  ngOnDestroy(): void {
-    cancelAnimationFrame(this.animationFrameId);
-    if (this.renderer) {
-      this.renderer.dispose();
-    }
   }
 
   private isWebGl2Supported(container: ElementRef<HTMLDivElement>): boolean {
