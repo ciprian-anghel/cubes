@@ -1,9 +1,9 @@
 Additional stuff:
 
-[] 3D - create assets using different simple colors - icons + textures and load them in the storage
-[] 3D - investigate how can I add mesh to character in blender and how can I change them in threejs
+[x] 3D - create mock assets using different simple colors - icons + textures and load them in the storage
+[x] 3D - investigate how can I add mesh to character in blender and how can I change them in threejs
 see https://chatgpt.com/share/66eaa324-2d80-8000-aeaa-c81dffb489a3
-[] 3D - use the selected textures on the character model
+[x] 3D - use the selected textures on the character model
 [] 3D - investigate how can I add overlapping textures on head.
 The idea is to have eyes, mouth, hair textures on the entire expanded cube part but with transparency and then overlap all of them.
 https://chatgpt.com/share/66eaa3f7-db14-8000-8599-a52d46704517
@@ -12,11 +12,11 @@ https://chatgpt.com/share/66eaa3f7-db14-8000-8599-a52d46704517
 [] UI - Improve the quality of UI
 [] UI - Make it accessible on multiple devices
 
-[] Storage - add logic to automatically reload all assets if a trigger exist. 
-The trigger can be a txt file which will be deleted after asset reload.
+[] Storage - add logic to synchronize cached assets with the ones in storage.
 [] Storage - remove the environment property which triggers reloading of assets.
 
 [] Search for TODOs
+[] Logging
 
 [] Assets - Create some real assets
 

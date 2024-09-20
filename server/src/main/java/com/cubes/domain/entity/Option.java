@@ -3,6 +3,7 @@ package com.cubes.domain.entity;
 import java.io.File;
 import java.nio.file.Path;
 
+import com.cubes.repository.FirebaseStorageProcessor;
 import com.cubes.repository.FirebaseStorageRepository;
 
 public class Option {
@@ -106,11 +107,17 @@ public class Option {
 			return this;
 		}
 		
-		public Builder category(String category) {
-			if (category == null || category.isBlank()) {
-				throw new IllegalArgumentException("category cannot be empty");
+		public Builder category(String path) {
+			if (path == null || path.isBlank()) {
+				throw new IllegalArgumentException("path for category cannot be empty");
 			}
-			this.category = category;
+			
+			if (path.endsWith(FirebaseStorageProcessor.PNG_EXTENTION)) {
+				this.category = Path.of(path).getParent().getFileName().toString();
+				return this;
+			}
+			
+			this.category = Path.of(path).getFileName().toString();
 			return this;
 		}
 		

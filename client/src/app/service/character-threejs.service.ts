@@ -153,9 +153,8 @@ export class ThreeService implements OnDestroy {
             if (option.texturePath) {
               this.textureUriPath = this.backendApi.getTextureUri(option.texturePath);
 
-              if (mesh.name.includes(category) && option.category === category) {
-                  //multiple body because body includes body + hands objects
-                  console.log("body texture set: " + this.textureUriPath);
+              //multiple body because body includes body + hands objects
+              if (mesh.name.includes(category) && option.category === category) {                  
                   texture = new TextureLoader().load(this.textureUriPath);
               }
       

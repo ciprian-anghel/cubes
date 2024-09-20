@@ -1,5 +1,6 @@
 package com.cubes.api.controller;
 
+import java.util.Comparator;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,12 +12,22 @@ import org.springframework.web.bind.annotation.RestController;
 import com.cubes.api.dto.OptionDto;
 import com.cubes.api.dto.OptionDtoMapper;
 import com.cubes.service.OptionService;
+import com.cubes.utils.OptionCategory;
 
 @RestController
 public class OptionController {
 	
 	private OptionService service;
-	
+
+	private Comparator<OptionDto> sortByCategory = Comparator
+				// Directories first
+	        .comparing(OptionDto::getTexturePath, Comparator.nullsFirst(Comparator.naturalOrder()))
+		        // Compare categories if both are directories. 
+	        .thenComparing(a -> OptionCategory.getOptionCategory(a.getCategory()).orElse(null), 
+	        		Comparator.nullsFirst(Comparator.comparing(Enum::ordinal))) 
+	        	// Fallback
+	        .thenComparing(OptionDto::getName); 
+		
 	@Autowired
 	public OptionController(OptionService service) {
 		this.service = service;
@@ -26,7 +37,9 @@ public class OptionController {
 	public ResponseEntity<List<OptionDto>> getAllOptions() {
 		List<OptionDto> options = 
 				service.getAllOptions()
-					.stream().map(OptionDtoMapper::apply).toList();
+					.stream().map(OptionDtoMapper::apply)
+					.sorted(sortByCategory)
+					.toList();
 		return ResponseEntity.ok(options);
 	}
 	
@@ -34,7 +47,9 @@ public class OptionController {
 	public ResponseEntity<List<OptionDto>> getRootOptions() {
 		List<OptionDto> options = 
 				service.getRootOptions().stream()
-					.map(OptionDtoMapper::apply).toList();
+					.map(OptionDtoMapper::apply)
+					.sorted(sortByCategory)
+					.toList();		
 		return ResponseEntity.ok(options);
 	}
 	
@@ -42,7 +57,10 @@ public class OptionController {
 	public ResponseEntity<List<OptionDto>> getChildren(@RequestParam int id) {
 		List<OptionDto> options = 
 				service.getChildrenOf(id).stream()
-					.map(OptionDtoMapper::apply).toList();
+					.map(OptionDtoMapper::apply)
+					.sorted(sortByCategory)
+					.toList();
 		return ResponseEntity.ok(options);
 	}
+	
 }

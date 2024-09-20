@@ -19,7 +19,7 @@ public class FirebaseStorageProcessor {
 	private static final Logger log = LoggerFactory.getLogger(FirebaseStorageProcessor.class);
 	
 	private static final String ICON_PREFIX = "icon-";
-	private static final String PNG_EXTENTION = ".png";
+	public static final String PNG_EXTENTION = ".png";
 	
 	private static int idCounter = 0;
 	
@@ -68,7 +68,7 @@ public class FirebaseStorageProcessor {
 				.parentPath(f.getParent())
 				.iconPath(getIconPath(f))
 				.texturePath(f)
-				.category(f.getParentFile().getName())
+				.category(f.getPath())
 				.name(f.getName())
 				.build());
     		
