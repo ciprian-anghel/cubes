@@ -4,5 +4,6 @@ export interface Option {
 	parentPath: string;
 	iconPath: string;
 	texturePath: string;
+	category: string;
 	name: string;
 }

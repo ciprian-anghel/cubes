@@ -63,6 +63,7 @@ public class FirebaseStorageProcessor {
 				.parentPath(f.getParent())
 				.iconPath(getIconPath(f))
 				.texturePath(f)
+				.category(f.getParentFile().getName())
 				.name(f.getName())
 				.build());
     		

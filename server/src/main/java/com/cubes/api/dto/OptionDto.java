@@ -7,6 +7,7 @@ public class OptionDto {
 	private String parentPath;
 	private String iconPath;
 	private String texturePath;
+	private String category;
 	private String name;
 
 	public OptionDto() {}
@@ -49,6 +50,14 @@ public class OptionDto {
 
 	public void setTexturePath(String texturePath) {
 		this.texturePath = texturePath;
+	}
+	
+	public String getCategory() {
+		return category;
+	}
+
+	public void setCategory(String category) {
+		this.category = category;
 	}
 
 	public String getName() {

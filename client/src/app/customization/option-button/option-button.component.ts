@@ -1,7 +1,7 @@
 import { Component, effect, inject, input, OnInit } from '@angular/core';
-import { environment } from '../../../environments/environment';
 import { Option } from '../../model/option.model';
 import { SharedService } from '../../service/shared.service';
+import { BackendCommunicationService } from '../../api/service/backend-communication/backend-communication.service';
 
 @Component({
   selector: 'app-option-button',
@@ -12,23 +12,24 @@ import { SharedService } from '../../service/shared.service';
 })
 export class OptionButtonComponent implements OnInit {
 
-  public option = input<Option>({	id: 0, path: '', parentPath: '', iconPath: '', texturePath: '', name: ''});   //TODO: add a default option
+  public option = input<Option>({	id: 0, path: '', parentPath: '', iconPath: '', texturePath: '', category: '', name: ''});   //TODO: add a default option
   public navigationId = input<number>(0);
+
+  private backendApi = inject(BackendCommunicationService);
 
   protected imageUrl = "";
   
   private sharedService = inject(SharedService);
-  private readonly serverInstanceUrl: string = environment.serverInstanceUrl;
 
   constructor() {
     //TODO: remove this effect
     effect(() => {
-      this.imageUrl = this.serverInstanceUrl + this.option().iconPath;
+      this.imageUrl = this.backendApi.getTextureUri(this.option().iconPath);
     });
   }
 
   ngOnInit(): void {
-    this.imageUrl = this.serverInstanceUrl + this.option().iconPath;
+    this.imageUrl = this.backendApi.getTextureUri(this.option().iconPath);
   }
 
   selectOption() {
@@ -38,7 +39,7 @@ export class OptionButtonComponent implements OnInit {
 
     }
 
-    this.sharedService.setSelectedCategoryOption(this.option().id, this.navigationId());    
+    this.sharedService.setSelectedCategoryOption(this.option(), this.navigationId());    
   }
 
   // private shareSelectedOptions

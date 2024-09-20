@@ -11,6 +11,7 @@ public class OptionDtoMapper {
 		dto.setParentPath(option.getParentPath());
 		dto.setIconPath(option.getIconPath());
 		dto.setTexturePath(option.getTexturePath());
+		dto.setCategory(option.getCategory());
 		dto.setName(option.getName());
 		return dto;
 	}
