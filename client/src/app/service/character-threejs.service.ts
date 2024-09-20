@@ -25,7 +25,7 @@ export class ThreeService implements OnDestroy {
   private animationFrameId: number = 0;
   private controls!: OrbitControls;
   private ambientLigth!: AmbientLight;
-  private directionalLight!: DirectionalLight; 
+  private directionalLight!: DirectionalLight;
 
   private textureUriPath!: string;
 
@@ -50,7 +50,7 @@ export class ThreeService implements OnDestroy {
     this.setCamera();
     this.setLight();
     this.setControls();
-    this.setGltfLoader();   
+    this.setGltfLoader();
   }
 
   ngOnDestroy(): void {
@@ -71,8 +71,7 @@ export class ThreeService implements OnDestroy {
     this.camera.aspect = containerWidth / containerHeight;
     this.camera.updateProjectionMatrix();
 
-    this.renderer.setSize(containerWidth, containerHeight);    
-    // Ensure the renderer updates the next frame
+    this.renderer.setSize(containerWidth, containerHeight);
     this.renderer.setPixelRatio(window.devicePixelRatio);
   }
 
@@ -100,20 +99,18 @@ export class ThreeService implements OnDestroy {
       1,
       1000
     );
-    // this.camera.position.set(10, 1, 0);
     this.camera.position.set(10, 1.3, -5);
-    // 9.907862992115486, y: 1.2781153154665779, z: -4.9195707280691385
   }
 
   private setLight(): void {
-    this.directionalLight = new DirectionalLight(0xffffff, 1); 
+    this.directionalLight = new DirectionalLight(0xffffff, 1);
     this.directionalLight.position.set(500, 500, 500).normalize();
     this.directionalLight.castShadow = true;
     this.scene.add(this.directionalLight);
 
     this.ambientLigth = new AmbientLight(0xffffff, 0.5);
-    this.scene.add(this.ambientLigth);    
-  }  
+    this.scene.add(this.ambientLigth);
+  }
     
 
   private setControls(): void {
@@ -130,7 +127,7 @@ export class ThreeService implements OnDestroy {
         this.loadTextures(model);
         this.scene.add(model);
         this.scene.position.y = this.scene.position.y - 1;
-        this.animate(gltf);        
+        this.animate(gltf);
       },
       undefined,
       (error) => {
@@ -142,13 +139,13 @@ export class ThreeService implements OnDestroy {
   private loadTextures(model: Group<Object3DEventMap>) {
     this.sharedService.selectedCategoryOption$
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((selectedItem) => {        
+      .subscribe((selectedItem) => {
         const option: Option = selectedItem.option;
         const category: string = option.category;
         //TODO: 
         console.log("The hell, de ce se cheama de 2 ori: " + option.id);
         
-        model.traverse((child) => {          
+        model.traverse((child) => {
           if ((child as Mesh).isMesh) {
             const mesh: Mesh = child as Mesh;
             let texture;
@@ -163,7 +160,7 @@ export class ThreeService implements OnDestroy {
               }
       
               if (Array.isArray(mesh)) {
-                return;              
+                return;
               } else {
                 const material = mesh.material as MeshStandardMaterial;
                 if (material.map) {
@@ -174,9 +171,9 @@ export class ThreeService implements OnDestroy {
                   }
                 }
               }
-            }          
+            }
           }
-        });        
+        });
     });    
   }
 
