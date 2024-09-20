@@ -5,7 +5,6 @@
 
 ## 1. Strucura
 	- Fiecare `textura` si fiecare `parinte` va deveni in final un buton in UI.
-	//TODO: schimb logica in server ca citesc doar .png si sa ignor restul.
 		
 ## 2. Numele `parintelui` identic cu numele mesh-ului modelului 3D. 
 	- `Parintele` trebuie sa coincida cu numele unui mesh al modelului 3D. 

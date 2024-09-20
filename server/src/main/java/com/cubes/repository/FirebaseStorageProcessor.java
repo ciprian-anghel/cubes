@@ -19,6 +19,7 @@ public class FirebaseStorageProcessor {
 	private static final Logger log = LoggerFactory.getLogger(FirebaseStorageProcessor.class);
 	
 	private static final String ICON_PREFIX = "icon-";
+	private static final String PNG_EXTENTION = ".png";
 	
 	private static int idCounter = 0;
 	
@@ -43,10 +44,14 @@ public class FirebaseStorageProcessor {
 	    }
 	}
 	
+	public boolean isAllowedFile(String path) {
+		return !isGcsDirectory(path) && path.endsWith(PNG_EXTENTION);
+	}
+	
 	/**
 	 * Google Cloud Storage directories end with "/"
 	 */
-	public boolean isGcsDirectory(String path) {
+	private boolean isGcsDirectory(String path) {
 		return path.endsWith("/");
 	}
     
@@ -83,7 +88,7 @@ public class FirebaseStorageProcessor {
     	String name = path.getName();
     	
     	if (path.isDirectory()) {
-    		name = ICON_PREFIX + name + ".png";
+    		name = ICON_PREFIX + name + PNG_EXTENTION;
     	} else {
     		name = ICON_PREFIX + name;
     	}

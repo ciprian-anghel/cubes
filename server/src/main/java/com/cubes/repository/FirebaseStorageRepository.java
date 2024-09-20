@@ -33,7 +33,7 @@ public class FirebaseStorageRepository {
 	private static final String ASSETS_PATH = STATIC_PATH + "/assets";
 	public static final String CUBES_PATH = ASSETS_PATH + "/cubes";
 	private static final String FOLDER_PREFIX = "cubes";
-	
+		
 	private final Bucket bucket;
 	private final Environment environment;
 	private final FirebaseStorageProcessor processor;
@@ -92,7 +92,7 @@ public class FirebaseStorageRepository {
     	log.info("Downloading assets from remote storage");
     	bucket.list(BlobListOption.prefix(FOLDER_PREFIX))
     		  .streamAll()
-    		  .filter(blob -> !processor.isGcsDirectory(blob.getName()))
+    		  .filter(blob -> processor.isAllowedFile(blob.getName()))
     		  .parallel()
     		  .forEach(this::downloadAsset);
     }
