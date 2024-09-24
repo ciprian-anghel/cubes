@@ -12,14 +12,19 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import com.cubes.domain.entity.Option;
+import com.cubes.domain.entity.Option.Builder;
 
+/**
+ * Class which creates the options metadata based on the locally stored assets.
+ */
 @Component
 public class FirebaseStorageProcessor {
 	
 	private static final Logger log = LoggerFactory.getLogger(FirebaseStorageProcessor.class);
 	
-	private static final String ICON_PREFIX = "icon-";
 	public static final String PNG_EXTENTION = ".png";
+	private static final String ICON_PREFIX = "icon-";
+	private static final String BASE_COLOR_PREFIX = ICON_PREFIX + "base-color-";
 	
 	private static int idCounter = 0;
 	
@@ -58,19 +63,23 @@ public class FirebaseStorageProcessor {
     private List<Option> mapFileToOption(File file) {
     	List<Option> options = new ArrayList<>();
     	for (File f : file.listFiles()) {
-    		if (f.getName().startsWith(ICON_PREFIX)) {
+    		if (isIcon(f)) {    			
     			continue;
     		}
     		
-    		options.add(Option.builder()
-    			.id(++idCounter)
+    		Builder builder = Option.builder()
+				.id(++idCounter)
 				.path(f.getPath())
 				.parentPath(f.getParent())
 				.iconPath(getIconPath(f))
 				.texturePath(f)
 				.category(f.getPath())
-				.name(f.getName())
-				.build());
+				.name(f.getName());
+    		
+				if (isIconWithEmbeddedColor(f)) {
+					builder.color(parseColor(f.getName()));
+				}
+				options.add(builder.build());
     		
     		if (f.isDirectory()) {
     			options.addAll(mapFileToOption(f));
@@ -79,15 +88,38 @@ public class FirebaseStorageProcessor {
     	return options;
     }
     
-    private String getIconPath(File path) {
-    	if (path.getName().startsWith(ICON_PREFIX)) {
-    		return path.getName();
+    private boolean isIconWithEmbeddedColor(File file) {
+    	return file.getName().startsWith(BASE_COLOR_PREFIX);
+    }
+    
+    private boolean isIcon(File file) {
+    	return file.getName().startsWith(ICON_PREFIX)
+    			&& !isIconWithEmbeddedColor(file);
+    }
+    
+    private String parseColor(String fileName) {
+    	String hexValidator = "\\b([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})\\b";
+    	
+    	String hexColor = fileName.replace(BASE_COLOR_PREFIX, "").replace(PNG_EXTENTION, "");
+    	if (hexColor.matches(hexValidator)) {
+    		return hexColor;
+    	}
+    	throw new IllegalArgumentException(String.format("A valid hex color could not be parsed from filename: %s", fileName));
+    }
+    
+    private String getIconPath(File file) {
+    	if (isIcon(file)) {
+    		return file.getName();
     	}
     	
-    	String parent = path.getParent();
-    	String name = path.getName();
+    	if (isIconWithEmbeddedColor(file)) {
+    		return file.getPath();
+    	}
     	
-    	if (path.isDirectory()) {
+    	String parent = file.getParent();
+    	String name = file.getName();
+    	
+    	if (file.isDirectory()) {
     		name = ICON_PREFIX + name + PNG_EXTENTION;
     	} else {
     		name = ICON_PREFIX + name;

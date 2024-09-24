@@ -4,27 +4,49 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
- * Categories are the directories which should exist in the storage and the mesh names of the 3D model.
- * Directories will be converted to parent options.
- * The order of the parent options is defined by the ordinal of the enum values.
- */
+ * Representation of all type of categories of options.
+ * 
+ * The order of the values inside {@code OptionCategory} defines the order of elements in the response JSON, 
+ * and in the end the order of the elements in the UI.
+ * 
+ * The same directory names must exist in the storage having names set as {@code category}.
+*/
 public enum OptionCategory {
 	
-	HEAD("head"), 
-	BODY("body"), 
-	FEET("feet"), 
-	HAIR("hair"), 
-	EYES("eyes"), 
-	MOUTH("mouth");
+	//top elements
+	BASE_COLOR("color", null),
+	HEAD("head", null),
+	BODY("body", null),
+	FEET("feet", null),
+	
+	//head elements
+	HAIR("hair", HEAD),
+	EYES("eyes", HEAD),
+	MOUTH("mouth", HEAD),
+	
+	//body elements
+	SHIRT("shirt", BODY),
+	NECKLACE("necklace", BODY),
+	
+	//feet elements
+	BELT("belt", FEET),
+	PANTS("pants", FEET),
+	SHOES("shoes", FEET);
 	
 	private String category;
+	private OptionCategory modelCategory;
 	
-	private OptionCategory(String category) {
+	private OptionCategory(String category, OptionCategory modelCategory) {
 		this.category = category;
+		this.modelCategory = modelCategory;
 	}
 	
 	public String getCategory() {
 		return category;
+	}
+	
+	public OptionCategory getModelCategory() {
+		return modelCategory;
 	}
 	
 	public static Optional<OptionCategory> getOptionCategory(String category) {

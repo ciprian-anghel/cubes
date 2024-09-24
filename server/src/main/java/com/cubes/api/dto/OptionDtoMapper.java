@@ -1,6 +1,7 @@
 package com.cubes.api.dto;
 
 import com.cubes.domain.entity.Option;
+import com.cubes.utils.OptionCategory;
 
 public class OptionDtoMapper {
 		
@@ -11,8 +12,18 @@ public class OptionDtoMapper {
 		dto.setParentPath(option.getParentPath());
 		dto.setIconPath(option.getIconPath());
 		dto.setTexturePath(option.getTexturePath());
-		dto.setCategory(option.getCategory());
+		dto.setColor(option.getColor());
 		dto.setName(option.getName());
+		
+		OptionCategory category = option.getOptionCategory();
+		if (category != null) {
+			dto.setCategory(category.getCategory());
+			OptionCategory modelCategory = category.getModelCategory();
+			if (modelCategory != null) {
+				dto.setModelCategory(modelCategory.getCategory());
+			}
+		}
+		
 		return dto;
 	}
 	

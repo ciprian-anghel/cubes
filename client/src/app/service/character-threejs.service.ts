@@ -157,18 +157,40 @@ export class ThreeService implements OnDestroy {
               if (mesh.name.includes(category) && option.category === category) {                  
                   texture = new TextureLoader().load(this.textureUriPath);
               }
-      
-              if (Array.isArray(mesh)) {
-                return;
-              } else {
-                const material = mesh.material as MeshStandardMaterial;
-                if (material.map) {
-                  if (texture) {
-                    texture.flipY = false; // Prevents the rotation of texture. This keeps the same behaviour as in blender
-                    material.map = texture;
-                    material.needsUpdate = true;
+
+              const material = mesh.material as MeshStandardMaterial;              
+              //if color, map is null
+              if (material.map) {
+                if (texture) {
+                  texture.flipY = false; // Prevents the rotation of texture. This keeps the same behaviour as in blender
+                  material.map = texture;
+
+                  if (mesh.name === "head" && option.category === "head") {                   
+                    const textureOverlay = new TextureLoader().load("http://localhost:8080/assets/face.png");
+                    const overlayMaterial = new MeshStandardMaterial({
+                      map: textureOverlay,
+                      transparent: true, // Enable transparency for the decal
+                      depthTest: false,  // This will ensure the decal draws on top
+                      depthWrite: false, // Prevents writing to the depth buffer to avoid z-fighting
+                      //Assuming I have 3 different textures applied on top of each other,
+                      //which configuration should I use to specify, based on the mesh.name, which textureOverlay is drawn first, second, last?
+                  });
+
+                    const overlayMesh = mesh.clone();
+                    overlayMesh.material = overlayMaterial;
+                    overlayMesh.renderOrder = 1; //draw this texture first
+                    this.scene.add(overlayMesh);
                   }
+
+                  material.needsUpdate = true;
                 }
+              } else {
+                //TODO: the idea is to have options added on the server. Maybe I should create some other objects on the server
+                // -- option menu
+                // -- option item
+                // -- base color
+                // all extending option
+                material.color.set('0xffffff');
               }
             }
           }

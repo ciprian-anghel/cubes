@@ -4,10 +4,10 @@ Additional stuff:
 [x] 3D - investigate how can I add mesh to character in blender and how can I change them in threejs
 see https://chatgpt.com/share/66eaa324-2d80-8000-aeaa-c81dffb489a3
 [x] 3D - use the selected textures on the character model
-[] 3D - investigate how can I add overlapping textures on head.
-The idea is to have eyes, mouth, hair textures on the entire expanded cube part but with transparency and then overlap all of them.
-https://chatgpt.com/share/66eaa3f7-db14-8000-8599-a52d46704517
-[] 3D - create in blender some additional elements, to make the scene more interesting.
+[x] 3D - investigate how to support alpha and texture overlay
+[] 3D - change logic to support:
+            - changing skin color (applies on the entire model)
+            - all clothes will be using alpha and be overlay over the skin
 
 [] UI - Improve the quality of UI
 [] UI - Make it accessible on multiple devices

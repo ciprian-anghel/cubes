@@ -4,7 +4,6 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -24,6 +23,9 @@ import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage.BlobListOption;
 
+/**
+ * Class which downloads the assets from remote storage and keep the processed options metadata.
+ */
 @Repository
 public class FirebaseStorageRepository {
 	
@@ -39,7 +41,7 @@ public class FirebaseStorageRepository {
 	private final FirebaseStorageProcessor processor;
 	private final FileUtils fileUtils;
 
-	private List<Option> options = new ArrayList<>();
+	private List<Option> options;
 	
 	@Autowired
     public FirebaseStorageRepository(Bucket bucket, Environment environment, FirebaseStorageProcessor processor, FileUtils fileUtils) {
@@ -51,26 +53,20 @@ public class FirebaseStorageRepository {
     
     @PostConstruct
     private void postConstruct() {
-    	initializeAssets();
+    	options = initializeOptions();
     }
     
     public List<Option> getOptions() {
     	return Collections.unmodifiableList(options);
     }
     
-    public void initializeAssets() {
+    public List<Option> initializeOptions() {
     	log.info("Starting to initialize assets");
     	if (environment.isAlwaysDownloadAssets()) {
-    		discardAndDownloadAssets();
-    	} else {
-    		loadAssetsFromCache();
-    	}
-    	options = processor.processOptions(Path.of(CUBES_PATH));
-    }
-    
-    private void discardAndDownloadAssets() {
-    	discardCachedAssets(Paths.get(CUBES_PATH).toFile());
-    	downloadAssetsFromStorage();
+    		discardCachedAssets(Paths.get(CUBES_PATH).toFile());
+    	}    		
+    	downloadAssetsIfNotCached();
+    	return processor.processOptions(Path.of(CUBES_PATH));
     }
     
     private void discardCachedAssets(File file) {
@@ -78,17 +74,20 @@ public class FirebaseStorageRepository {
     	fileUtils.deleteDirectory(file);
     }
     
-    private void loadAssetsFromCache() {
-        log.info("Loading assets from cache...");
-        if (Files.exists(Path.of(CUBES_PATH))) {
+    private void downloadAssetsIfNotCached() {
+        if (cacheFolderExists()) {
             log.info("Cache found.");
-        } else {
-            log.info("Cache not found, downloading assets...");
-            downloadAssetsFromStorage();
+            return;
         }
+        log.info("Cache not found, downloading assets...");
+        downloadAssetsFromRemoteStorage();
     }
     
-    private void downloadAssetsFromStorage() {
+    private boolean cacheFolderExists() {
+    	return Files.exists(Path.of(CUBES_PATH));
+    }
+    
+    private void downloadAssetsFromRemoteStorage() {
     	log.info("Downloading assets from remote storage");
     	bucket.list(BlobListOption.prefix(FOLDER_PREFIX))
     		  .streamAll()

@@ -8,6 +8,8 @@ public class OptionDto {
 	private String iconPath;
 	private String texturePath;
 	private String category;
+	private String modelCategory;
+	private String color;
 	private String name;
 
 	public OptionDto() {}
@@ -20,20 +22,20 @@ public class OptionDto {
 		this.id = id;
 	}
 	
-	public String getPath() {
-		return path;
-	}
-
-	public void setPath(String path) {
-		this.path = path;
-	}
-
 	public String getParentPath() {
 		return parentPath;
 	}
 
 	public void setParentPath(String parentPath) {
 		this.parentPath = parentPath;
+	}
+	
+	public String getPath() {
+		return path;
+	}
+
+	public void setPath(String path) {
+		this.path = path;
 	}
 
 	public String getIconPath() {
@@ -58,6 +60,22 @@ public class OptionDto {
 
 	public void setCategory(String category) {
 		this.category = category;
+	}
+	
+	public String getModelCategory() {
+		return modelCategory;
+	}
+
+	public void setModelCategory(String modelCategory) {
+		this.modelCategory = modelCategory;
+	}
+	
+	public String getColor() {
+		return color;
+	}
+
+	public void setColor(String color) {
+		this.color = color;
 	}
 
 	public String getName() {
