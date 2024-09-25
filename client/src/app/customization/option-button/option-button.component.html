@@ -1,3 +1,8 @@
 <button (click)="selectOption()">
-     <img src="{{ imageUrl }}"/>
+     <img [src]="imageUrl" (error)="onImageError()" [hidden]="imageLoadError"/>
+     @if (imageLoadError) {
+          <div class="fallback-icon">
+               <p>{{ option().name }}</p>
+          </div>
+     }
 </button>

@@ -21,7 +21,7 @@ export class BackendCommunicationService {
     return this.httpClient.get<OptionDto[]>(this.serverInstanceUrl + '/children', {params});
   }
 
-  getTextureUri(path: string): string {
+  getAssetUri(path: string): string {
     return environment.serverInstanceUrl + path;
   }
 

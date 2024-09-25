@@ -151,7 +151,7 @@ export class ThreeService implements OnDestroy {
             let texture;
             
             if (option.texturePath) {
-              this.textureUriPath = this.backendApi.getTextureUri(option.texturePath);
+              this.textureUriPath = this.backendApi.getAssetUri(option.texturePath);
 
               //multiple body because body includes body + hands objects
               if (mesh.name.includes(category) && option.category === category) {                  
@@ -185,12 +185,7 @@ export class ThreeService implements OnDestroy {
                   material.needsUpdate = true;
                 }
               } else {
-                //TODO: the idea is to have options added on the server. Maybe I should create some other objects on the server
-                // -- option menu
-                // -- option item
-                // -- base color
-                // all extending option
-                material.color.set('0xffffff');
+                material.color.set(option.color);
               }
             }
           }

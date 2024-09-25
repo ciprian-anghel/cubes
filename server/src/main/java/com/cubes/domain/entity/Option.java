@@ -15,7 +15,7 @@ public class Option {
 	private final String iconPath;
 	private final String texturePath;
 	private final OptionCategory optionCategory;
-	private final String color;
+	private final int color;
 	private final String name;
 	
 	
@@ -54,7 +54,7 @@ public class Option {
 		return optionCategory;
 	}
 	
-	public String getColor() {
+	public int getColor() {
 		return color;
 	}
 
@@ -73,7 +73,7 @@ public class Option {
 		private String iconPath;
 		private String texturePath;
 		private OptionCategory optionCategory;
-		private String color;
+		private int color;
 		private String name;
 		
 		public Builder id(int id) {
@@ -133,7 +133,7 @@ public class Option {
 			return this;
 		}
 		
-		public Builder color(String color) {
+		public Builder color(int color) {
 			this.color = color;
 			return this;
 		}

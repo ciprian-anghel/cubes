@@ -16,8 +16,9 @@ public class OptionDtoMapper {
 		dto.setName(option.getName());
 		
 		OptionCategory category = option.getOptionCategory();
-		if (category != null) {
-			dto.setCategory(category.getCategory());
+		if (category != null) {			
+			dto.setRenderOrder(category.getRenderOrder());
+			dto.setCategory(category.getCategory());		
 			OptionCategory modelCategory = category.getModelCategory();
 			if (modelCategory != null) {
 				dto.setModelCategory(modelCategory.getCategory());

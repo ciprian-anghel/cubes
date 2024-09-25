@@ -9,7 +9,8 @@ public class OptionDto {
 	private String texturePath;
 	private String category;
 	private String modelCategory;
-	private String color;
+	private int color;
+	private int renderOrder;
 	private String name;
 
 	public OptionDto() {}
@@ -70,12 +71,20 @@ public class OptionDto {
 		this.modelCategory = modelCategory;
 	}
 	
-	public String getColor() {
+	public int getColor() {
 		return color;
 	}
 
-	public void setColor(String color) {
+	public void setColor(int color) {
 		this.color = color;
+	}
+	
+	public int getRenderOrder() {
+		return renderOrder;
+	}
+	
+	public void setRenderOrder(int renderOrder) {
+		this.renderOrder = renderOrder;
 	}
 
 	public String getName() {

@@ -74,7 +74,7 @@ public class FirebaseStorageProcessor {
 				.iconPath(getIconPath(f))
 				.texturePath(f)
 				.category(f.getPath())
-				.name(f.getName());
+				.name(getName(f));
     		
 				if (isIconWithEmbeddedColor(f)) {
 					builder.color(parseColor(f.getName()));
@@ -97,12 +97,12 @@ public class FirebaseStorageProcessor {
     			&& !isIconWithEmbeddedColor(file);
     }
     
-    private String parseColor(String fileName) {
+    private int parseColor(String fileName) {
     	String hexValidator = "\\b([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})\\b";
     	
     	String hexColor = fileName.replace(BASE_COLOR_PREFIX, "").replace(PNG_EXTENTION, "");
     	if (hexColor.matches(hexValidator)) {
-    		return hexColor;
+    		return Integer.parseInt(hexColor, 16);
     	}
     	throw new IllegalArgumentException(String.format("A valid hex color could not be parsed from filename: %s", fileName));
     }
@@ -125,6 +125,10 @@ public class FirebaseStorageProcessor {
     		name = ICON_PREFIX + name;
     	}
     	return Path.of(parent, name).toString();
+    }
+    
+    private String getName(File file) {
+    	return file.getName().replace(PNG_EXTENTION, "");
     }
     
 }

@@ -1,7 +1,8 @@
-import { Component, effect, inject, input, OnInit } from '@angular/core';
+import { Component, effect, inject, input } from '@angular/core';
 import { Option } from '../../model/option.model';
 import { SharedService } from '../../service/shared.service';
 import { BackendCommunicationService } from '../../api/service/backend-communication/backend-communication.service';
+import { DEFAULT_OPTION } from '../../shared/option-default';
 
 @Component({
   selector: 'app-option-button',
@@ -10,37 +11,30 @@ import { BackendCommunicationService } from '../../api/service/backend-communica
   templateUrl: './option-button.component.html',
   styleUrl: './option-button.component.css'
 })
-export class OptionButtonComponent implements OnInit {
-
-  public option = input<Option>({	id: 0, path: '', parentPath: '', iconPath: '', texturePath: '', category: '', name: ''});   //TODO: add a default option
-  public navigationId = input<number>(0);
-
-  private backendApi = inject(BackendCommunicationService);
-
-  protected imageUrl = "";
+export class OptionButtonComponent {
   
+  public option = input<Option>(DEFAULT_OPTION);  
+  public navigationId = input<number>(0);
+  private backendApi = inject(BackendCommunicationService);
+  protected imageUrl: string = '';  
   private sharedService = inject(SharedService);
 
-  constructor() {
-    //TODO: remove this effect
-    effect(() => {
-      this.imageUrl = this.backendApi.getTextureUri(this.option().iconPath);
-    });
-  }
+  protected imageLoadError: boolean = false;
 
-  ngOnInit(): void {
-    this.imageUrl = this.backendApi.getTextureUri(this.option().iconPath);
+  constructor() {
+    //TODO: change effect() with something else, not recommended to use effect()
+    effect(() => {
+      this.imageUrl = this.backendApi.getAssetUri(this.option().iconPath);
+    });
   }
 
   selectOption() {
     this.sharedService.resetSelectedCategoryOption();
-
-    if (this.option().texturePath) {
-
-    }
-
     this.sharedService.setSelectedCategoryOption(this.option(), this.navigationId());    
   }
 
-  // private shareSelectedOptions
+  onImageError() {
+    this.imageLoadError = true;
+  }
+
 }

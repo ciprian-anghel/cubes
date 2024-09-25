@@ -12,3 +12,20 @@ button img {
 
     object-fit: cover;
 }
+
+button .fallback-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    height: inherit;
+    width: inherit;    
+
+    background-color: gainsboro;
+}
+
+p {
+    margin-bottom: 0;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
