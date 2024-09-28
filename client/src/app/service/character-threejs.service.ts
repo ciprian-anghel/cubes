@@ -149,12 +149,6 @@ export class ThreeService implements OnDestroy {
           if ((child as Mesh).isMesh) {
             const mesh: Mesh = child as Mesh;
             const material = mesh.material as MeshStandardMaterial;
-            if (Array.isArray(mesh.material)) {
-              for (let index = 0; index < mesh.material.length; index++) {
-                const element = mesh.material[index];        
-              }
-            } else {
-            }
 
             if (option.color) {
               material.color.set(option.color);
