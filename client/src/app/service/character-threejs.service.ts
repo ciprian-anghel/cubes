@@ -1,5 +1,5 @@
 import { Injectable, ElementRef, OnDestroy, inject, DestroyRef } from '@angular/core';
-import { Scene, PerspectiveCamera, WebGLRenderer, AmbientLight, DirectionalLight, CubeTextureLoader, WebGLRendererParameters, TextureLoader, Mesh, MeshStandardMaterial, RepeatWrapping, Group, Object3DEventMap } from 'three';
+import { Scene, PerspectiveCamera, WebGLRenderer, AmbientLight, DirectionalLight, CubeTextureLoader, WebGLRendererParameters, TextureLoader, Mesh, MeshStandardMaterial, RepeatWrapping, Group, Object3DEventMap, Object3D } from 'three';
 import { GLTF, GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import WebGL from 'three/examples/jsm/capabilities/WebGL.js';
@@ -7,6 +7,8 @@ import { SharedService } from './shared.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { BackendCommunicationService } from '../api/service/backend-communication/backend-communication.service';
 import { Option } from '../model/option.model';
+import { environment } from '../../environments/environment';
+import { CubeMesh } from '../model/cube-mesh';
 
 @Injectable({
   providedIn: 'root',
@@ -141,56 +143,66 @@ export class ThreeService implements OnDestroy {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((selectedItem) => {
         const option: Option = selectedItem.option;
-        const category: string = option.category;
-        //TODO: 
-        console.log("The hell, de ce se cheama de 2 ori: " + option.id);
+        this.removeMeshesByCategory(option);
         
         model.traverse((child) => {
           if ((child as Mesh).isMesh) {
             const mesh: Mesh = child as Mesh;
-            let texture;
+            const material = mesh.material as MeshStandardMaterial;
+            if (Array.isArray(mesh.material)) {
+              for (let index = 0; index < mesh.material.length; index++) {
+                const element = mesh.material[index];        
+              }
+            } else {
+            }
+
+            if (option.color) {
+              material.color.set(option.color);
+            }
             
             if (option.texturePath) {
-              this.textureUriPath = this.backendApi.getAssetUri(option.texturePath);
-
-              //multiple body because body includes body + hands objects
-              if (mesh.name.includes(category) && option.category === category) {                  
-                  texture = new TextureLoader().load(this.textureUriPath);
-              }
-
-              const material = mesh.material as MeshStandardMaterial;              
-              //if color, map is null
-              if (material.map) {
-                if (texture) {
-                  texture.flipY = false; // Prevents the rotation of texture. This keeps the same behaviour as in blender
-                  material.map = texture;
-
-                  if (mesh.name === "head" && option.category === "head") {                   
-                    const textureOverlay = new TextureLoader().load("http://localhost:8080/assets/face.png");
-                    const overlayMaterial = new MeshStandardMaterial({
-                      map: textureOverlay,
-                      transparent: true, // Enable transparency for the decal
-                      depthTest: false,  // This will ensure the decal draws on top
-                      depthWrite: false, // Prevents writing to the depth buffer to avoid z-fighting
-                      //Assuming I have 3 different textures applied on top of each other,
-                      //which configuration should I use to specify, based on the mesh.name, which textureOverlay is drawn first, second, last?
-                  });
-
-                    const overlayMesh = mesh.clone();
-                    overlayMesh.material = overlayMaterial;
-                    overlayMesh.renderOrder = 1; //draw this texture first
-                    this.scene.add(overlayMesh);
-                  }
-
-                  material.needsUpdate = true;
-                }
-              } else {
-                material.color.set(option.color);
+              if (material.name.startsWith(option.modelCategory)) {
+                const textureOverlay = new TextureLoader().load(environment.serverInstanceUrl + option.texturePath);
+                textureOverlay.flipY = false;
+                const overlayMaterial = new MeshStandardMaterial({
+                  map: textureOverlay,
+                  transparent: true, // Enable transparency for the overlay
+                  depthTest: true,  // Respect depth when rotating the model.
+                  depthWrite: false // Avoid z-fighting, but respect depth
+                });
+                const overlayMesh: CubeMesh = mesh.clone();
+                overlayMesh.category = option.category;
+                overlayMesh.material = overlayMaterial;
+                overlayMesh.renderOrder = option.renderOrder;
+                this.scene.add(overlayMesh);                
               }
             }
           }
         });
     });    
+  }
+
+  private removeMeshesByCategory(option: Option) {
+    if (!option.category) {
+      return;
+    }
+    
+    if (this.scene) {
+      this.scene.traverse((child) => {  
+        if ((child as CubeMesh).isMesh) {
+          
+          const mesh: CubeMesh = child as CubeMesh;
+          
+          const material = mesh.material as MeshStandardMaterial;
+          
+          if (mesh.category == option.category && option.texturePath) {
+            this.scene.remove(mesh);
+          }
+        }
+      });
+    }
+
+    
   }
 
   private animate(cube: GLTF) {
