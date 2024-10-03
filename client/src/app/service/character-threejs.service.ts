@@ -1,5 +1,5 @@
 import { Injectable, ElementRef, OnDestroy, inject, DestroyRef } from '@angular/core';
-import { Scene, PerspectiveCamera, WebGLRenderer, AmbientLight, DirectionalLight, CubeTextureLoader, WebGLRendererParameters, TextureLoader, Mesh, MeshStandardMaterial, RepeatWrapping, Group, Object3DEventMap, Object3D } from 'three';
+import { Scene, PerspectiveCamera, WebGLRenderer, AmbientLight, DirectionalLight, CubeTextureLoader, WebGLRendererParameters, TextureLoader, Mesh, MeshStandardMaterial, Group, Object3DEventMap, SpotLight, GridHelper, AxesHelper} from 'three';
 import { GLTF, GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import WebGL from 'three/examples/jsm/capabilities/WebGL.js';
@@ -26,8 +26,6 @@ export class ThreeService implements OnDestroy {
   private renderer!: WebGLRenderer;
   private animationFrameId: number = 0;
   private controls!: OrbitControls;
-  private ambientLigth!: AmbientLight;
-  private directionalLight!: DirectionalLight;
 
   private textureUriPath!: string;
 
@@ -53,6 +51,7 @@ export class ThreeService implements OnDestroy {
     this.setLight();
     this.setControls();
     this.setGltfLoader();
+    // this.gridHelper();
   }
 
   ngOnDestroy(): void {
@@ -105,31 +104,59 @@ export class ThreeService implements OnDestroy {
   }
 
   private setLight(): void {
-    this.directionalLight = new DirectionalLight(0xffffff, 1);
-    this.directionalLight.position.set(500, 500, 500).normalize();
-    this.directionalLight.castShadow = true;
-    this.scene.add(this.directionalLight);
+    const directionalLight = new DirectionalLight(0xffffff, 1);
+    directionalLight.position.set(500, 500, 500).normalize();
+    this.scene.add(directionalLight);
 
-    this.ambientLigth = new AmbientLight(0xffffff, 0.5);
-    this.scene.add(this.ambientLigth);
+    const ambientLigth = new AmbientLight(0xffffff, 2);
+    this.scene.add(ambientLigth);
+
+    const spotLight = new SpotLight(0xffffff, 1);
+    spotLight.position.set(10, 20, 0);
+    spotLight.angle = Math.PI / 6;
+    spotLight.penumbra = 0.1;  // Softness of the edge
+    spotLight.intensity = 1200;
+    this.scene.add(spotLight);
+
+    // const spotLightHelper = new SpotLightHelper(spotLight);
+    // this.scene.add(spotLightHelper);
   }
     
 
   private setControls(): void {
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     this.controls.enablePan = false;
+
+    this.controls.minDistance = 10;
+    this.controls.maxDistance = 20;
   }
 
   private setGltfLoader(): void {
     const loader = new GLTFLoader();
+
+    //load decor model
+    loader.load(
+      '/model/decor.glb',
+      (decor) => {
+        const model = decor.scene;
+        model.position.y = -20;
+        this.scene.add(model);
+      },
+      undefined,
+      (error) => {
+        console.error('Oops! We have an error:', error);
+      }
+    );
+
+    //load cube model
     loader.load(
       '/model/cube.glb',
-      (gltf) => {
-        const model = gltf.scene;
+      (cube) => {
+        const model = cube.scene;
         this.loadTextures(model);
         this.scene.add(model);
         this.scene.position.y = this.scene.position.y - 1;
-        this.animate(gltf);
+        this.animate(cube);
       },
       undefined,
       (error) => {
@@ -195,8 +222,6 @@ export class ThreeService implements OnDestroy {
         }
       });
     }
-
-    
   }
 
   private animate(cube: GLTF) {
@@ -210,8 +235,16 @@ export class ThreeService implements OnDestroy {
       return true;
     }
     const warning = WebGL.getWebGL2ErrorMessage();
-    container.nativeElement.appendChild( warning );
+    container.nativeElement.appendChild(warning);
     return false;
+  }
+
+  private gridHelper() {
+    const gridHelper = new GridHelper(100, 100);
+        this.scene.add(gridHelper);
+
+    const axesHelper = new AxesHelper(10);
+    this.scene.add(axesHelper);
   }
 
 }
