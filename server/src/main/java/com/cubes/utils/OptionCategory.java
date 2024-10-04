@@ -26,7 +26,7 @@ public enum OptionCategory {
 	
 	//body elements
 	SHIRT("shirt", BODY, 1),
-	NECKLACE("necklace", BODY, 2),
+//	NECKLACE("necklace", BODY, 2),
 	
 	//feet elements
 	PANTS("pants", FEET, 1),
