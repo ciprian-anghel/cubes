@@ -30,12 +30,12 @@ export class ThreeService implements OnDestroy {
   private textureUriPath!: string;
 
   private background = [
-    "/images/environment/mockwall2.png",
-    "/images/environment/mockwall2.png",
-    "/images/environment/mockwall2.png",
-    "/images/environment/mockwall2.png",
-    "/images/environment/mockwall2.png",
-    "/images/environment/mockwall2.png"
+    "/images/environment/env-sky-blue.png",
+    "/images/environment/env-sky-blue.png",
+    "/images/environment/env-sky-blue.png",
+    "/images/environment/env-sky-blue.png",
+    "/images/environment/env-sky-blue.png",
+    "/images/environment/env-sky-blue.png"
   ];
 
   initialize(container: ElementRef<HTMLDivElement>): void {
@@ -98,24 +98,26 @@ export class ThreeService implements OnDestroy {
       70,
       this.container.nativeElement.clientWidth / this.container.nativeElement.clientHeight,
       1,
-      1000
+      10000
     );
-    this.camera.position.set(10, 1.3, -5);
+    // this.camera.position.set(10, 1.3, -5);
+    // this.camera.position.set(-8.5, 0.35, 7.35);
+    this.camera.position.set(-10, 0, 3);
   }
 
   private setLight(): void {
     const directionalLight = new DirectionalLight(0xffffff, 1);
-    directionalLight.position.set(500, 500, 500).normalize();
+    directionalLight.position.set(-100, 10, 0).normalize();
     this.scene.add(directionalLight);
 
     const ambientLigth = new AmbientLight(0xffffff, 2);
     this.scene.add(ambientLigth);
 
     const spotLight = new SpotLight(0xffffff, 1);
-    spotLight.position.set(10, 20, 0);
+    spotLight.position.set(10, 70, 0);
     spotLight.angle = Math.PI / 6;
     spotLight.penumbra = 0.1;  // Softness of the edge
-    spotLight.intensity = 1200;
+    spotLight.intensity = 3000;
     this.scene.add(spotLight);
 
     // const spotLightHelper = new SpotLightHelper(spotLight);
@@ -227,7 +229,7 @@ export class ThreeService implements OnDestroy {
   private animate(cube: GLTF) {
     requestAnimationFrame(() => this.animate(cube));
     this.renderer.render(this.scene, this.camera);
-    // console.log("x: " + this.camera.position.x + ", y: " + this.camera.position.y + ", z: " + this.camera.position.z);
+    console.log("x: " + this.camera.position.x + ", y: " + this.camera.position.y + ", z: " + this.camera.position.z);
   }
 
   private isWebGl2Supported(container: ElementRef<HTMLDivElement>): boolean {
