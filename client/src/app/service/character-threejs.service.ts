@@ -100,8 +100,6 @@ export class ThreeService implements OnDestroy {
       1,
       10000
     );
-    // this.camera.position.set(10, 1.3, -5);
-    // this.camera.position.set(-8.5, 0.35, 7.35);
     this.camera.position.set(-10, 0, 3);
   }
 
