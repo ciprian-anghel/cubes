@@ -100,7 +100,7 @@ export class ThreeService implements OnDestroy {
       1,
       10000
     );
-    this.camera.position.set(-9, 0, -8.4);
+    this.camera.position.set(-10, 0.15, -8.15);
   }
 
   private setLight(): void {
@@ -153,6 +153,7 @@ export class ThreeService implements OnDestroy {
       '/model/cube.glb',
       (cube) => {
         const model = cube.scene;
+        model.rotateY(14.5);
         this.loadTextures(model);
         this.scene.add(model);
         this.scene.position.y = this.scene.position.y - 1;
