@@ -100,15 +100,15 @@ export class ThreeService implements OnDestroy {
       1,
       10000
     );
-    this.camera.position.set(-10, 0, 3);
+    this.camera.position.set(-9, 0, -8.4);
   }
 
   private setLight(): void {
     const directionalLight = new DirectionalLight(0xffffff, 1);
-    directionalLight.position.set(-100, 10, 0).normalize();
+    directionalLight.position.set(-10, -10, 0).normalize();
     this.scene.add(directionalLight);
 
-    const ambientLigth = new AmbientLight(0xffffff, 2);
+    const ambientLigth = new AmbientLight(0xffffff, 3);
     this.scene.add(ambientLigth);
 
     const spotLight = new SpotLight(0xffffff, 1);
