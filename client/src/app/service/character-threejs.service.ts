@@ -5,7 +5,6 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import WebGL from 'three/examples/jsm/capabilities/WebGL.js';
 import { SharedService } from './shared.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { BackendCommunicationService } from '../api/service/backend-communication/backend-communication.service';
 import { Option } from '../model/option.model';
 import { environment } from '../../environments/environment';
 import { CubeMesh } from '../model/cube-mesh';
@@ -17,7 +16,6 @@ export class ThreeService implements OnDestroy {
  
   private sharedService = inject(SharedService);
   private destroyRef = inject(DestroyRef);
-  private backendApi = inject(BackendCommunicationService);
 
   private container!: ElementRef<HTMLDivElement>;
 
@@ -27,7 +25,7 @@ export class ThreeService implements OnDestroy {
   private animationFrameId: number = 0;
   private controls!: OrbitControls;
 
-  private textureUriPath!: string;
+  private characterModelRotationY: number = 14.5;
 
   private background = [
     "/images/environment/env-sky-blue.png",
@@ -153,7 +151,7 @@ export class ThreeService implements OnDestroy {
       '/model/cube.glb',
       (cube) => {
         const model = cube.scene;
-        model.rotateY(14.5);
+        model.rotateY(this.characterModelRotationY);
         this.loadTextures(model);
         this.scene.add(model);
         this.scene.position.y = this.scene.position.y - 1;
@@ -193,6 +191,7 @@ export class ThreeService implements OnDestroy {
                   depthWrite: false // Avoid z-fighting, but respect depth
                 });
                 const overlayMesh: CubeMesh = mesh.clone();
+                overlayMesh.rotateY(this.characterModelRotationY);
                 overlayMesh.category = option.category;
                 overlayMesh.material = overlayMaterial;
                 overlayMesh.renderOrder = option.renderOrder;
@@ -228,7 +227,7 @@ export class ThreeService implements OnDestroy {
   private animate(cube: GLTF) {
     requestAnimationFrame(() => this.animate(cube));
     this.renderer.render(this.scene, this.camera);
-    console.log("x: " + this.camera.position.x + ", y: " + this.camera.position.y + ", z: " + this.camera.position.z);
+    // console.log("x: " + this.camera.position.x + ", y: " + this.camera.position.y + ", z: " + this.camera.position.z);
   }
 
   private isWebGl2Supported(container: ElementRef<HTMLDivElement>): boolean {

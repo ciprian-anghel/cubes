@@ -1,3 +1,19 @@
+[] Add few texture for each part
+- clean up hair textures
+[] Add option to remove texture
+[] Add randomizer
+[] Implement "Donwload print as PDF"
+[] Finalize UI
+- Change icons - see pinterest
+- improve visuals
+- make it mobile friendly
+- visualize which button was clicked
+[] Dockerize the sh*t out of it
+[] Make it publicly available
+[] Test it on mobile
+[] save the assets on drive
+
+---- EXTRA
 [] Apply spring security using Firebase
 [] Use a filter, in this case CommonsRequestLoggingFilter
 ```

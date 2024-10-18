@@ -20,9 +20,10 @@ public enum OptionCategory {
 	FEET("feet", null, 0),
 	
 	//head elements
-	HAIR("hair", HEAD, 1),
+	HAIR("hair", HEAD, 3),	
 	EYES("eyes", HEAD, 2),
-	MOUTH("mouth", HEAD, 3),
+	MOUTH("mouth", HEAD, 4),
+	BEARD("beard", HEAD, 1),
 	
 	//body elements
 	SHIRT("shirt", BODY, 1),
@@ -30,8 +31,7 @@ public enum OptionCategory {
 	
 	//feet elements
 	PANTS("pants", FEET, 1),
-	BELT("belt", FEET, 2),
-	SHOES("shoes", FEET, 3);
+	SHOES("shoes", FEET, 2);
 	
 	private String category;
 	private OptionCategory modelCategory;
