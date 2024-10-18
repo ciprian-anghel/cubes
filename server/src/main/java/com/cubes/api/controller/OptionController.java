@@ -1,8 +1,9 @@
 package com.cubes.api.controller;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Comparator;
 import java.util.List;
 
@@ -77,17 +78,34 @@ public class OptionController {
 	@GetMapping("/asset")
 	public ResponseEntity<?> listPaths(@RequestParam String path) throws IOException {
 		Resource resource = resourceLoader.getResource("classpath:/static" + path);
-		if (resource.exists() && resource.isFile()) {
-			File file = resource.getFile();
-			InputStreamResource inputStreamResource = 
-					new InputStreamResource(new FileInputStream(file));
-			HttpHeaders headers = new HttpHeaders();
-	        headers.setContentType(MediaType.IMAGE_PNG);  // Adjust the media type as needed
-	        headers.setContentLength(file.length());
+		if (resource.exists()) {
+			InputStream inputStream = resource.getInputStream();
+			
+			String mimeType = Files.probeContentType(Paths.get(path));
+	        if (mimeType == null) {
+	            mimeType = MediaType.APPLICATION_OCTET_STREAM_VALUE;
+	        }
+	        
+	        InputStreamResource inputStreamResource = new InputStreamResource(inputStream);
+
+	        HttpHeaders headers = new HttpHeaders();
+	        headers.setContentType(MediaType.parseMediaType(mimeType));
 
 	        return ResponseEntity.ok()
 	                .headers(headers)
 	                .body(inputStreamResource);
+			
+//			File file = resource.getFile();
+//			InputStreamResource inputStreamResource = 
+//					new InputStreamResource(new FileInputStream(file));
+//			
+//			HttpHeaders headers = new HttpHeaders();
+//	        headers.setContentType(MediaType.IMAGE_PNG);
+//	        headers.setContentLength(file.length());
+//
+//	        return ResponseEntity.ok()
+//	                .headers(headers)
+//	                .body(inputStreamResource);
 		} else {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("File not found: " + path);
 		}
