@@ -26,10 +26,12 @@ public class GoogleFirebaseConfig {
 	
 	@Bean
 	Bucket getBucket() throws ConfigurationException {
-		Storage storage = StorageOptions.newBuilder()
-				.setProjectId(getEnvironment().getProjectId())
-				.build()
-				.getService();
+//		Storage storage = StorageOptions.newBuilder()
+//				.setProjectId(getEnvironment().getProjectId())
+//				.build()
+//				.getService();
+		
+		Storage storage = StorageOptions.getDefaultInstance().getService();
 		
 		Bucket bucket = storage.get(getEnvironment().getBucketName());
 		if (bucket != null) {
