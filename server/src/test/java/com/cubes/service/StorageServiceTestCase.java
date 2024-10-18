@@ -4,10 +4,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.env.Environment;
 
-import com.cubes.config.Environment;
-import com.cubes.repository.FirebaseStorageRepository;
 import com.cubes.repository.FirebaseStorageProcessor;
+import com.cubes.repository.FirebaseStorageRepository;
 import com.cubes.utils.FileUtils;
 import com.google.cloud.storage.Bucket;
 

@@ -12,10 +12,10 @@ import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
 
-import com.cubes.config.Environment;
 import com.cubes.domain.entity.Option;
 import com.cubes.exception.AppException;
 import com.cubes.utils.FileUtils;
@@ -62,7 +62,7 @@ public class FirebaseStorageRepository {
     
     public List<Option> initializeOptions() {
     	log.info("Starting to initialize assets");
-    	if (environment.isAlwaysDownloadAssets()) {
+    	if (Boolean.getBoolean(environment.getProperty("ALWAYS_DOWNLOAD_ASSETS", "false"))) {
     		discardCachedAssets(Paths.get(CUBES_PATH).toFile());
     	}    		
     	downloadAssetsIfNotCached();
