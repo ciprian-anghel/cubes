@@ -156,7 +156,7 @@ public class Option {
 				return null;
 			}
 			return path.replace("\\", "/")
-					   .replace(FirebaseStorageRepository.STATIC_PATH, "");
+					   .replace(FirebaseStorageRepository.BASE_PATH, "");
 		}
 		
 		/* TODO: MOVE THIS TO SOME OTHER HELPER CLASS */

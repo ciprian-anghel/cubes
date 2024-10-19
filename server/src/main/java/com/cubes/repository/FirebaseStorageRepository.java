@@ -31,11 +31,12 @@ public class FirebaseStorageRepository {
 	
 	private static final Logger log = LoggerFactory.getLogger(FirebaseStorageRepository.class);
 	
-	public static final String STATIC_PATH = "src/main/resources/static";
-	private static final String ASSETS_PATH = STATIC_PATH + "/assets";
+//	public static final String STATIC_PATH = "src/main/resources/static";
+	public static final String BASE_PATH = Path.of(System.getProperty("user.dir"), "../", "cube_assets").normalize().toString();
+	private static final String ASSETS_PATH = BASE_PATH + "/assets";
 	public static final String CUBES_PATH = ASSETS_PATH + "/cubes";
 	private static final String FOLDER_PREFIX = "cubes";
-		
+	
 	private final Bucket bucket;
 	private final Environment environment;
 	private final FirebaseStorageProcessor processor;
