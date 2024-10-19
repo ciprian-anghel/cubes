@@ -66,7 +66,7 @@ public class FirebaseStorageProcessor {
     		if (isIcon(f)) {    			
     			continue;
     		}
-    		
+    		log.debug("filename: " + f.getAbsolutePath());
     		Builder builder = Option.builder()
 				.id(++idCounter)
 				.path(f.getPath())
