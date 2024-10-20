@@ -8,6 +8,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Option } from '../model/option.model';
 import { environment } from '../../environments/environment';
 import { CubeMesh } from '../model/cube-mesh';
+import { BackendCommunicationService } from '../api/service/backend-communication/backend-communication.service';
 
 @Injectable({
   providedIn: 'root',
@@ -16,6 +17,7 @@ export class ThreeService implements OnDestroy {
  
   private sharedService = inject(SharedService);
   private destroyRef = inject(DestroyRef);
+  private backendApi = inject(BackendCommunicationService);
 
   private container!: ElementRef<HTMLDivElement>;
 
@@ -182,20 +184,30 @@ export class ThreeService implements OnDestroy {
             
             if (option.texturePath) {
               if (material.name.startsWith(option.modelCategory)) {
-                const textureOverlay = new TextureLoader().load(environment.serverInstanceUrl + option.texturePath);
-                textureOverlay.flipY = false;
-                const overlayMaterial = new MeshStandardMaterial({
-                  map: textureOverlay,
-                  transparent: true, // Enable transparency for the overlay
-                  depthTest: true,  // Respect depth when rotating the model.
-                  depthWrite: false // Avoid z-fighting, but respect depth
+                this.backendApi.getAsset(option.texturePath)
+                .pipe(takeUntilDestroyed(this.destroyRef))
+                .subscribe({
+                  next: (asset: Blob) => {
+                    const textureUrl = URL.createObjectURL(asset);
+                    const textureOverlay = new TextureLoader().load(textureUrl);
+                    textureOverlay.flipY = false;
+                  const overlayMaterial = new MeshStandardMaterial({
+                    map: textureOverlay,
+                    transparent: true, // Enable transparency for the overlay
+                    depthTest: true,  // Respect depth when rotating the model.
+                    depthWrite: false // Avoid z-fighting, but respect depth
+                  });
+                  const overlayMesh: CubeMesh = mesh.clone();
+                  overlayMesh.rotateY(this.characterModelRotationY);
+                  overlayMesh.category = option.category;
+                  overlayMesh.material = overlayMaterial;
+                  overlayMesh.renderOrder = option.renderOrder;
+                  this.scene.add(overlayMesh);              
+                },
+                  error: (error) => {
+                    console.error("Error fetching asset:", error);
+                  }
                 });
-                const overlayMesh: CubeMesh = mesh.clone();
-                overlayMesh.rotateY(this.characterModelRotationY);
-                overlayMesh.category = option.category;
-                overlayMesh.material = overlayMaterial;
-                overlayMesh.renderOrder = option.renderOrder;
-                this.scene.add(overlayMesh);                
               }
             }
           }

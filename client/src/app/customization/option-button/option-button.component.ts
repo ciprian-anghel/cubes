@@ -1,8 +1,9 @@
-import { Component, effect, inject, input } from '@angular/core';
+import { Component, DestroyRef, effect, inject, input } from '@angular/core';
 import { Option } from '../../model/option.model';
 import { SharedService } from '../../service/shared.service';
 import { BackendCommunicationService } from '../../api/service/backend-communication/backend-communication.service';
 import { DEFAULT_OPTION } from '../../shared/option-default';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-option-button',
@@ -21,14 +22,30 @@ export class OptionButtonComponent {
 
   protected imageLoadError: boolean = false;
 
+  private destroyRef = inject(DestroyRef);
+
   constructor() {
-    //TODO: change effect() with something else, not recommended to use effect()
     effect(() => {
-      this.imageUrl = this.backendApi.getAssetUri(this.option().iconPath);
+      this.backendApi.getAsset(this.option().iconPath)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (asset: Blob) => {
+          this.imageUrl = URL.createObjectURL(asset);
+          this.imageLoadError = false;
+        },
+        error: (error) => {
+          console.error("Error fetching asset:", error);
+        }
+      });
     });
   }
 
+  getImage() {
+    
+  }
+
   selectOption() {
+    console.log(this.option().path);
     this.sharedService.resetSelectedCategoryOption();
     this.sharedService.setSelectedCategoryOption(this.option(), this.navigationId());    
   }

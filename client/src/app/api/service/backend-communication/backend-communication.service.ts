@@ -1,4 +1,4 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { OptionDto } from '../../dto/option.dto';
@@ -21,8 +21,15 @@ export class BackendCommunicationService {
     return this.httpClient.get<OptionDto[]>(this.serverInstanceUrl + '/children', {params});
   }
 
-  getAssetUri(path: string): string {
-    return environment.serverInstanceUrl + path;
+  getAsset(path: string): Observable<Blob> {
+    const params = new HttpParams().set('path', path);
+    // return this.httpClient.get<Blob>(this.serverInstanceUrl + '/asset', {params});
+    return this.httpClient.get(this.serverInstanceUrl + `/asset?path=${path}`, {
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        'Accept': 'image/png'
+      })
+    });
   }
 
 }
