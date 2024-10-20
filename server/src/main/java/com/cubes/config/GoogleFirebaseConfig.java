@@ -28,14 +28,14 @@ public class GoogleFirebaseConfig {
 	@Autowired
     private Environment environment;
 	
-	@PostConstruct
-	public void postConstruct() {
-		String path = environment.getProperty(GC_APPLICATION_CREDENTIALS, "");
-		if (path != null && !path.isBlank() && Files.notExists(Path.of(path))) {
-			throw new IllegalArgumentException(
-					String.format("Environment property %s is set but the file does not exist.", GC_APPLICATION_CREDENTIALS));
-		}
-	}
+//	@PostConstruct
+//	public void postConstruct() {
+//		String path = environment.getProperty(GC_APPLICATION_CREDENTIALS, "");
+//		if (path != null && !path.isBlank() && Files.notExists(Path.of(path))) {
+//			throw new IllegalArgumentException(
+//					String.format("Environment property %s is set but the file does not exist.", GC_APPLICATION_CREDENTIALS));
+//		}
+//	}
 	
 	@Bean
 	FirebaseApp intializeFirebase() throws IOException {
