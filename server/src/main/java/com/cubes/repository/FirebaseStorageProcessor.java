@@ -34,6 +34,9 @@ public class FirebaseStorageProcessor {
     	if (Files.notExists(cubesPath)) {
     		return List.of();
     	}
+    	
+    	log.debug("processOptions - Base path is {}", cubesPath);
+    	
     	return mapFileToOption(cubesPath.toFile());
     }
     

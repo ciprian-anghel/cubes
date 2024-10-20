@@ -166,6 +166,7 @@ export class ThreeService implements OnDestroy {
     );
   }
 
+  //TODO: I do not like to have nested subscribes
   private loadTextures(model: Group<Object3DEventMap>) {
     this.sharedService.selectedCategoryOption$
       .pipe(takeUntilDestroyed(this.destroyRef))

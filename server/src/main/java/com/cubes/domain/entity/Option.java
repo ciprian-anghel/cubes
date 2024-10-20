@@ -96,7 +96,7 @@ public class Option {
 			if (path == null || path.isBlank()) {
 				throw new IllegalArgumentException("path cannot be empty");
 			}
-			this.path = removeStaticDirPrefixFromPath(path);
+			this.path = cleanPath(path);
 			return this;
 		}
 		
@@ -104,7 +104,7 @@ public class Option {
 			if (iconPath == null || iconPath.isBlank()) {
 				throw new IllegalArgumentException("iconPath cannot be empty");
 			}
-			this.iconPath = removeStaticDirPrefixFromPath(iconPath);
+			this.iconPath = cleanPath(iconPath);
 			return this;
 		}
 		
@@ -112,7 +112,7 @@ public class Option {
 			if (texturePath == null || texturePath.isDirectory()) {
 				return this;
 			}
-			this.texturePath = removeStaticDirPrefixFromPath(texturePath.getPath());
+			this.texturePath = cleanPath(texturePath.getPath());
 			return this;
 		}
 		
@@ -151,12 +151,12 @@ public class Option {
 		}
 		
 	    /* TODO: MOVE THIS TO SOME OTHER HELPER CLASS */
-		private String removeStaticDirPrefixFromPath(String path) {
+		private String cleanPath(String path) {
 			if (path == null) {
 				return null;
 			}
-			return path.replace("\\", "/")
-					   .replace(FirebaseStorageRepository.BASE_PATH, "");
+			return path.replace("\\", "/");
+//					   .replace(FirebaseStorageRepository.BASE_PATH, "");
 		}
 		
 		/* TODO: MOVE THIS TO SOME OTHER HELPER CLASS */
@@ -164,7 +164,7 @@ public class Option {
 			if (parentPath == null || isCubesPath(parentPath)) {
 				return null;
 			}
-			return removeStaticDirPrefixFromPath(parentPath);
+			return cleanPath(parentPath);
 		}
 		
 		/* TODO: MOVE THIS TO SOME OTHER HELPER CLASS */

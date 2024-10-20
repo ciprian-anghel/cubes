@@ -14,7 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -33,7 +32,6 @@ public class OptionController {
 	private static final Logger log = LoggerFactory.getLogger(OptionController.class);
 	
 	private OptionService service;
-	private ResourceLoader resourceLoader;
 
 	private Comparator<OptionDto> sortByCategory = Comparator
 			// Directories first
@@ -45,9 +43,8 @@ public class OptionController {
 			.thenComparing(OptionDto::getName); 
 
 	@Autowired
-	public OptionController(OptionService service, ResourceLoader resourceLoader) {
+	public OptionController(OptionService service) {
 		this.service = service;
-		this.resourceLoader = resourceLoader;
 	}
 
 	@GetMapping("/all-options")
