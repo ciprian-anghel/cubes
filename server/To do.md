@@ -2,7 +2,7 @@
 - clean up hair textures
 [] Add option to remove texture
 [] Add randomizer
-[] Implement "Donwload print as PDF"
+[] Implement "Download print as PDF"
 [] Finalize UI
 - Change icons - see pinterest
 - improve visuals
