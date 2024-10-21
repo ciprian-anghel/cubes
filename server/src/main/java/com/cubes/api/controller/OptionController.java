@@ -9,11 +9,13 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -92,8 +94,11 @@ public class OptionController {
 			log.debug("asset - get image: " + path);
 			
 			InputStream inputStream = new BufferedInputStream(new FileInputStream(resource));
-			InputStreamResource inputStreamResource = new InputStreamResource(inputStream);				
+			InputStreamResource inputStreamResource = new InputStreamResource(inputStream);	
+			
+			CacheControl caching = CacheControl.maxAge(365, TimeUnit.DAYS);
 			return ResponseEntity.ok()
+					.cacheControl(caching)
 					.contentType(MediaType.IMAGE_PNG)
 					.body(inputStreamResource); //stream is closed by spring
 		} catch (Exception e) {
