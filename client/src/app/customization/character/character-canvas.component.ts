@@ -10,7 +10,7 @@ import { fromEvent, Observable, Subscription } from 'rxjs';
   styleUrl: './character-canvas.component.css'
 })
 export class CharacterCanvasComponent implements AfterViewInit, OnDestroy, OnInit {
-  @ViewChild('canvasContainer', { static: true }) canvasContainer!: ElementRef<HTMLDivElement>;
+  @ViewChild('canvasContainer') canvasContainer!: ElementRef<HTMLDivElement>;
 
   private resizeObservable$!: Observable<Event>;
   private resizeSubscription$!: Subscription;
@@ -18,9 +18,12 @@ export class CharacterCanvasComponent implements AfterViewInit, OnDestroy, OnIni
   constructor(private threeService: ThreeService) {}
 
   ngOnInit(): void {
-    this.resizeObservable$ = fromEvent(window, 'resize')
+    this.resizeObservable$ = fromEvent(window, 'resize');
     this.resizeSubscription$ = this.resizeObservable$.subscribe( evt => {
-      this.threeService.resize();
+      const element = this.canvasContainer.nativeElement;
+      const height = element.offsetHeight;
+      const width = element.offsetWidth;
+      this.threeService.resize(height, width);
     });
   }
 

@@ -63,16 +63,13 @@ export class ThreeService implements OnDestroy {
 
   /**
    * In order to adjust the rendered image based on the window size,
-   * the method should be called inside the container component when window is resized.
+   * this method should be called inside the container component when window is resized.
    */
-  public resize(): void {
-    const containerWidth = this.container.nativeElement.clientWidth;
-    const containerHeight = this.container.nativeElement.clientHeight;
-
-    this.camera.aspect = containerWidth / containerHeight;
+  public resize(height: number, width: number): void {
+    this.camera.aspect = width / height;
     this.camera.updateProjectionMatrix();
 
-    this.renderer.setSize(containerWidth, containerHeight);
+    this.renderer.setSize(width, height);
     this.renderer.setPixelRatio(window.devicePixelRatio);
   }
 
