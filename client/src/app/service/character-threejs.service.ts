@@ -83,6 +83,7 @@ export class ThreeService implements OnDestroy {
   private setRenderer(): void {
     const parameters: WebGLRendererParameters = {antialias: true};
     this.renderer = new WebGLRenderer(parameters);
+    this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.setSize(
       this.container.nativeElement.clientWidth,
       this.container.nativeElement.clientHeight
