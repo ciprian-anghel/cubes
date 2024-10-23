@@ -12,15 +12,15 @@ export class SharedService {
     {option: DEFAULT_OPTION, navigationId: 0}
   );
 
-  selectedCategoryOption$ = this.selectedOption.asObservable();
+  selectedOption$ = this.selectedOption.asObservable();
 
-  setSelectedCategoryOption(option: Option, navigationId: number) {
+  setSelectedOption(option: Option, navigationId: number) {
     this.selectedOption.next(
       {option: option, navigationId: navigationId}
     );
   }
 
-  resetSelectedCategoryOption() {
+  resetSelectedOption() {
     this.selectedOption.next({option: DEFAULT_OPTION, navigationId: 0});
   }
 

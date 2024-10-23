@@ -40,14 +40,8 @@ export class OptionButtonComponent {
     });
   }
 
-  getImage() {
-    
-  }
-
   selectOption() {
-    console.log(this.option().path);
-    this.sharedService.resetSelectedCategoryOption();
-    this.sharedService.setSelectedCategoryOption(this.option(), this.navigationId());    
+    this.sharedService.setSelectedOption(this.option(), this.navigationId());
   }
 
   onImageError() {

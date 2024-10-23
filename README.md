@@ -27,8 +27,6 @@ C. Service Account
 	3. select Actions on firebase service account > Manage Keys > Add key > Create new key > JSON
 
 D. Create Secret
-	! For local development, an application_default_credentials.json should be used. See on web how to create one.
-	
 	1. Security > Secret Manager > Enable
 	2. Create Secret > upload key json > create secret
  

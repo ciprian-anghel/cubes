@@ -6,7 +6,6 @@ import WebGL from 'three/examples/jsm/capabilities/WebGL.js';
 import { SharedService } from './shared.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Option } from '../model/option.model';
-import { environment } from '../../environments/environment';
 import { CubeMesh } from '../model/cube-mesh';
 import { BackendCommunicationService } from '../api/service/backend-communication/backend-communication.service';
 
@@ -166,10 +165,11 @@ export class ThreeService implements OnDestroy {
 
   //TODO: I do not like to have nested subscribes
   private loadTextures(model: Group<Object3DEventMap>) {
-    this.sharedService.selectedCategoryOption$
+    this.sharedService.selectedOption$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((selectedItem) => {
         const option: Option = selectedItem.option;
+        
         this.removeMeshesByCategory(option);
         
         model.traverse((child) => {
@@ -218,20 +218,39 @@ export class ThreeService implements OnDestroy {
     if (!option.category) {
       return;
     }
+
+    if (!(this.scene instanceof Scene)) {
+      console.error('Invalid scene object:', this.scene);
+      return;
+    }
     
-    if (this.scene) {
-      this.scene.traverse((child) => {  
-        if ((child as CubeMesh).isMesh) {
-          
-          const mesh: CubeMesh = child as CubeMesh;
-          
-          const material = mesh.material as MeshStandardMaterial;
-          
+    const meshesToRemove: CubeMesh[] = [];
+
+    this.scene.traverse((child) => {
+      if ((child as CubeMesh).isMesh) {          
+        const mesh: CubeMesh = child as CubeMesh;                    
           if (mesh.category == option.category && option.texturePath) {
-            this.scene.remove(mesh);
+            meshesToRemove.push(mesh);
           }
-        }
-      });
+        }    
+    });
+
+    meshesToRemove.forEach((mesh) => {
+      this.removeMesh(mesh);
+    });
+  }
+ 
+  private removeMesh(mesh: CubeMesh) {
+    this.scene.remove(mesh);
+    // When you remove an object from the scene using this.scene.remove(mesh), 
+    //the object no longer renders, but its underlying resources (geometry and materials) are still in memory.
+    mesh.geometry.dispose();
+    if (mesh.material) {
+      if (Array.isArray(mesh.material)) {
+        mesh.material.forEach((mat) => mat.dispose());
+      } else {
+        mesh.material.dispose();
+      }
     }
   }
 
