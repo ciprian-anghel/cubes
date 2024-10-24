@@ -1,8 +1,10 @@
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { OptionDto } from '../../dto/option.dto';
 import { environment } from '../../../../environments/environment';
+import { OptionMapper } from '../mapper/option-mapper.service';
+import { Option } from '../../../model/option.model'
 
 @Injectable({
   providedIn: 'root'
@@ -11,14 +13,21 @@ export class BackendCommunicationService {
 
   private readonly serverInstanceUrl: string = environment.serverInstanceUrl;
   private httpClient = inject(HttpClient);
+  private optionMapper = inject(OptionMapper);
 
-  getRootElements(): Observable<OptionDto[]> {
-      return this.httpClient.get<OptionDto[]>(this.serverInstanceUrl + '/root-options');
+  getRootElements(): Observable<Option[]> {
+      return this.httpClient.get<OptionDto[]>(this.serverInstanceUrl + '/root-options')
+      .pipe(
+        map((dtos: OptionDto[]) => dtos.map(dto => this.optionMapper.mapOptionDtoToOption(dto)))
+      );
   }
 
-  getChildrenOf(optionId: number): Observable<OptionDto[]> {
+  getChildrenOf(optionId: number): Observable<Option[]> {
     const params = new HttpParams().set('id', optionId);
-    return this.httpClient.get<OptionDto[]>(this.serverInstanceUrl + '/children', {params});
+    return this.httpClient.get<OptionDto[]>(this.serverInstanceUrl + '/children', {params})
+    .pipe(
+      map((dtos: OptionDto[]) => dtos.map(dto => this.optionMapper.mapOptionDtoToOption(dto)))
+    );
   }
 
   getAsset(path: string): Observable<Blob> {

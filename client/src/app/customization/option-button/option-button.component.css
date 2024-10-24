@@ -13,6 +13,11 @@ button img {
     object-fit: cover;
 }
 
+button .selected-option {
+    border: 3px solid coral;
+    transition: border-color 0.3s;
+}
+
 button .fallback-icon {
     display: flex;
     justify-content: center;
@@ -22,6 +27,10 @@ button .fallback-icon {
     width: inherit;    
 
     background-color: gainsboro;
+}
+
+button .icon-loading {
+    background-color: burlywood;
 }
 
 p {
@@ -36,4 +45,6 @@ p {
         height: 2rem;
     }
 }
+
+
 

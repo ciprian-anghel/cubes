@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.cubes.api.dto.OptionDto;
 import com.cubes.api.dto.OptionDtoMapper;
+import com.cubes.domain.entity.Option;
 import com.cubes.service.OptionService;
 import com.cubes.utils.OptionCategory;
 
@@ -34,15 +35,15 @@ public class OptionController {
 	private static final Logger log = LoggerFactory.getLogger(OptionController.class);
 	
 	private OptionService service;
-
-	private Comparator<OptionDto> sortByCategory = Comparator
+	
+	private Comparator<Option> sortByCategory = Comparator
 			// Directories first
-			.comparing(OptionDto::getTexturePath, Comparator.nullsFirst(Comparator.naturalOrder()))
+			.comparing(Option::getTexturePath, Comparator.nullsFirst(Comparator.naturalOrder()))
 			// Compare categories if both are directories. 
-			.thenComparing(a -> OptionCategory.getOptionCategory(a.getCategory()).orElse(null), 
-					Comparator.nullsFirst(Comparator.comparing(Enum::ordinal))) 
+			.thenComparing(o -> OptionCategory.getOptionCategory(o.getOptionCategory().getCategory()).orElse(null),
+				Comparator.nullsFirst(Comparator.comparing(Enum::ordinal)))
 			// Fallback
-			.thenComparing(OptionDto::getName); 
+			.thenComparing(Option::getName);
 
 	@Autowired
 	public OptionController(OptionService service) {
@@ -52,10 +53,10 @@ public class OptionController {
 	@GetMapping("/all-options")
 	public ResponseEntity<List<OptionDto>> getAllOptions() {
 		List<OptionDto> options = 
-				service.getAllOptions()
-				.stream().map(OptionDtoMapper::apply)
-				.sorted(sortByCategory)
-				.toList();
+				service.getAllOptions().stream()
+					.sorted(sortByCategory)
+					.map(OptionDtoMapper::apply)
+					.toList();
 		return ResponseEntity.ok(options);
 	}
 
@@ -63,9 +64,9 @@ public class OptionController {
 	public ResponseEntity<List<OptionDto>> getRootOptions() {
 		List<OptionDto> options = 
 				service.getRootOptions().stream()
-				.map(OptionDtoMapper::apply)
-				.sorted(sortByCategory)
-				.toList();		
+					.sorted(sortByCategory)
+					.map(OptionDtoMapper::apply)				
+					.toList();		
 		return ResponseEntity.ok(options);
 	}
 
@@ -73,15 +74,15 @@ public class OptionController {
 	public ResponseEntity<List<OptionDto>> getChildren(@RequestParam int id) {
 		List<OptionDto> options = 
 				service.getChildrenOf(id).stream()
-				.map(OptionDtoMapper::apply)
 				.sorted(sortByCategory)
+				.map(OptionDtoMapper::apply)
 				.toList();
 		return ResponseEntity.ok(options);
 	}
 
 	@GetMapping(value="/asset", 
-			produces = {MediaType.IMAGE_PNG_VALUE, 
-					MediaType.APPLICATION_JSON_VALUE})
+				produces = {MediaType.IMAGE_PNG_VALUE, 
+						MediaType.APPLICATION_JSON_VALUE})
 	public ResponseEntity<?> getAsset(@RequestParam String path) throws IOException {
 		File resource = Path.of(path).toFile();
 		if (!resource.exists()) {

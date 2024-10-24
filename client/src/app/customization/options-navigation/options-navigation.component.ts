@@ -26,6 +26,8 @@ export class OptionsNavigationComponent implements OnInit {
   ngOnInit(): void {
     this.subscriptions.push(this.sharedService.selectedOption$.subscribe((result) => {
       this.loadChildren(result.option.id, result.navigationId);
+      this.options().forEach((option) => option.selected = false);
+      result.option.selected = true;
     }));
 
     if (this.isInsideNavigationOne()) {
@@ -70,9 +72,9 @@ export class OptionsNavigationComponent implements OnInit {
     this.subscriptions.push(this.backendService.getChildrenOf(parentId)
       .subscribe({
         next: (resultOptions) => {
-        this.options.set([]);
-        resultOptions.forEach(option => {
-            this.options.update(values => [...values, option])
+          this.options.set([]);
+          resultOptions.forEach(option => {
+              this.options.update(values => [...values, option])
           });
         }
       }));

@@ -171,7 +171,12 @@ export class ThreeService implements OnDestroy {
         const option: Option = selectedItem.option;
         
         this.removeMeshesByCategory(option);
-        
+        if (option.toClearTexture) {
+          option.toClearTexture = false;
+          option.selected = false;
+          return;
+        }
+
         model.traverse((child) => {
           if ((child as Mesh).isMesh) {
             const mesh: Mesh = child as Mesh;

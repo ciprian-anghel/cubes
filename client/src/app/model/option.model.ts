@@ -9,4 +9,6 @@ export interface Option {
 	color: number;
     renderOrder: number;
 	name: string;
+	selected: boolean;
+	toClearTexture: boolean;
 }

@@ -1,5 +1,11 @@
 <button (click)="selectOption()">
-     <img [src]="imageUrl" (error)="onImageError()" [hidden]="imageLoadError"/>
+     <img [src]="imageUrl" 
+          (error)="onImageError()" 
+          [hidden]="imageLoadError"          
+          (load)="onLoad()"
+          [class.icon-loading] = "!imageLoaded"
+          [class.selected-option] = "option().selected"
+     />
      @if (imageLoadError) {
           <div class="fallback-icon">
                <p>{{ option().name }}</p>

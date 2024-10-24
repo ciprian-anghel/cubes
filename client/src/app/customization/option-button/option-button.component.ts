@@ -21,6 +21,7 @@ export class OptionButtonComponent {
   private sharedService = inject(SharedService);
 
   protected imageLoadError: boolean = false;
+  protected imageLoaded: boolean = false;
 
   private destroyRef = inject(DestroyRef);
 
@@ -40,12 +41,35 @@ export class OptionButtonComponent {
     });
   }
 
+  /**
+   * At each click, this.option().selected is set to false to all buttons then is set to true only to the selected button.
+   * see OptionsNavigationComponent
+   * 
+   * Also, the selection is set back to false when the texture is cleared.
+   * see ThreeService
+   */
   selectOption() {
+    if (this.option().selected) {      
+      this.option().toClearTexture = true;
+    }
+
     this.sharedService.setSelectedOption(this.option(), this.navigationId());
   }
 
   onImageError() {
     this.imageLoadError = true;
+  }
+
+  onLoad() {
+    this.imageLoaded = true;
+  }
+
+  private select() {
+    
+  }
+
+  private deselect() {
+    
   }
 
 }

@@ -10,5 +10,7 @@ export const DEFAULT_OPTION: Option = {
   modelCategory: '',
   color: 0,
   renderOrder: 0,
-  name: ''
+  name: '',
+  selected: false,
+  toClearTexture: false
 };
