@@ -64,12 +64,4 @@ export class OptionButtonComponent {
     this.imageLoaded = true;
   }
 
-  private select() {
-    
-  }
-
-  private deselect() {
-    
-  }
-
 }
