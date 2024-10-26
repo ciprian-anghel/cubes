@@ -18,7 +18,6 @@ public class Option {
 	private final int color;
 	private final String name;
 	
-	
 	private Option(Builder builder) {
 		this.id = builder.id;
 		this.parentPath = builder.parentPath;

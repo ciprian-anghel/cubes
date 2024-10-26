@@ -1,6 +1,7 @@
 package com.cubes.service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,11 +22,18 @@ public class OptionService {
 		this.repository = repository;
 	}
 	
+	public Option getOption(int id) {
+		Optional<Option> optionOpt = repository.getOptions().stream().filter(o -> o.getId() == id).findFirst();
+		if (optionOpt.isEmpty()) {
+			throw new NoSuchElementException("Option with id was not found: " + id);
+		}
+		return optionOpt.get();
+	}
+	
 	public List<Option> getAllOptions() {
 		return repository.getOptions();
 	}
-	
-	
+		
 	//TODO: Fix me, parentPath nu are null in acest loc.
 	//		Fix, muta logica de clean din DTO in FirebaseStorageProcessor
 	public List<Option> getRootOptions() {

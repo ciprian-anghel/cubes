@@ -64,6 +64,11 @@ public enum OptionCategory {
 		return renderOrder;
 	}
 	
+	public boolean isCategory() {
+		return !this.equals(BASE_COLOR)
+				&& this.getModelCategory() == null;
+	}
+	
 	public static Optional<OptionCategory> getOptionCategory(String category) {
 		return Stream.of(OptionCategory.values())
 				.filter(o -> o.category.equals(category))
