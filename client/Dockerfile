@@ -5,6 +5,7 @@ COPY package*.json ./
 RUN npm install -g @angular/cli
 RUN npm install
 RUN npm install file-saver --saver
+RUN npm update
 COPY . /app
 RUN ng build --configuration=production
 
