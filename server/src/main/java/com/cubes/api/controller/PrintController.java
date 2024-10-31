@@ -1,6 +1,7 @@
 package com.cubes.api.controller;
 
 import java.awt.AlphaComposite;
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -75,7 +76,8 @@ public class PrintController {
 	
 	@GetMapping("/print")
 	public ResponseEntity<StreamingResponseBody> createPrintableImage(
-			@RequestParam List<Integer> ids
+			@RequestParam(required = false, defaultValue = "ffffff") String baseColor,
+			@RequestParam(required = false, defaultValue = "") List<Integer> ids 
 	) throws IOException {
 		
 		try (PDDocument document = new PDDocument()) {
@@ -92,11 +94,11 @@ public class PrintController {
 		
 			printMap.forEach((key, options) -> {
 				if (key == OptionCategory.HEAD) {
-					drawCategory(options, document, headCutout, headMask);
+					drawCategory(options, document, headCutout, headMask, baseColor);
 				} else if (key == OptionCategory.BODY) {
-					drawCategory(options, document, bodyCutout, bodyMask);
+					drawCategory(options, document, bodyCutout, bodyMask, baseColor);
 				} else if (key == OptionCategory.FEET) {
-					drawCategory(options, document, feetCutout, feetMask);
+					drawCategory(options, document, feetCutout, feetMask, baseColor);
 				} else {
 					throw new AppException(
 							"Unsupported category: " + key.getCategory(), HttpStatus.BAD_REQUEST);
@@ -150,7 +152,7 @@ public class PrintController {
 	}
 	
 	private Map<OptionCategory, Set<Option>> createPrintMap(List<Integer> ids) {
-		return ids.stream().map(id -> optionService.getOption(id))
+		Map<OptionCategory, Set<Option>> result = ids.stream().map(id -> optionService.getOption(id))
 		.collect(
 				Collectors.toMap(
 							(option) -> option.getOptionCategory().getModelCategory(), 
@@ -164,9 +166,23 @@ public class PrintController {
 								return existingSet;
 							}
 		));
+		
+		if (result.get(OptionCategory.HEAD) == null) {
+			result.put(OptionCategory.HEAD, Set.of());
+		}
+		
+		if (result.get(OptionCategory.BODY) == null) {
+			result.put(OptionCategory.BODY, Set.of());
+		}
+		
+		if (result.get(OptionCategory.FEET) == null) {
+			result.put(OptionCategory.FEET, Set.of());
+		}
+		
+		return result;
 	}
 
-	private void drawCategory(Set<Option> options, PDDocument document, File cutouts, File mask) {
+	private void drawCategory(Set<Option> options, PDDocument document, File cutouts, File mask, String hexColor) {
 		PDPage page = new PDPage(A4_300DPI);
 		document.addPage(page);
 		
@@ -176,9 +192,12 @@ public class PrintController {
 			g2d = stackedImage.createGraphics();
 	        g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
 			
+	        drawBaseColor(hexColor, g2d);
+	        
 			for (Option o : options) {
 				drawAsset(o.getTexturePath(), g2d);
 			}
+
 			drawMask(mask, g2d);
 			drawCutouts(cutouts, g2d);
 			drawStackedImagesToPdfPage(document, page, stackedImage);
@@ -189,6 +208,12 @@ public class PrintController {
 				g2d.dispose();
 			}
 		}
+	}
+	
+	private void drawBaseColor(String hexColor, Graphics2D g2d) {
+		g2d.setColor(new Color(Integer.parseInt(hexColor, 16)));
+		g2d.fillRect(0, 0, WIDTH, HEIGHT);
+		g2d.setComposite(AlphaComposite.SrcOver);
 	}
 	
 	private void drawAsset(String texturePath, Graphics2D g2d) throws IOException {
