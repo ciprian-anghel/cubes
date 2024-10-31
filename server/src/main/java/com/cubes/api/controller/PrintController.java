@@ -1,16 +1,20 @@
 package com.cubes.api.controller;
 
+import java.awt.AlphaComposite;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
+
+import javax.imageio.ImageIO;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -22,12 +26,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
 
@@ -43,95 +50,76 @@ public class PrintController {
 	
 	private static final Logger log = LoggerFactory.getLogger(PrintController.class);
 	
-	public static final String PRINT_PATH = FirebaseStorageRepository.CUBES_PATH + "/print";
+	private static final String PRINT_PATH = FirebaseStorageRepository.BASE_PATH + "/print";
+	private static final String STATIC_DIRECTORY = "classpath:static";
+	private static final String HEAD_CUTOUTS_PATH = STATIC_DIRECTORY + "/cutouts/head.png";
+	private static final String BODY_CUTOUTS_PATH = STATIC_DIRECTORY + "/cutouts/body.png";
+	private static final String FEET_CUTOUTS_PATH = STATIC_DIRECTORY + "/cutouts/feet.png";
+	private static final String HEAD_MASK_PATH = STATIC_DIRECTORY + "/mask/head.png";
+	private static final String BODY_MASK_PATH = STATIC_DIRECTORY + "/mask/body.png";
+	private static final String FEET_MASK_PATH = STATIC_DIRECTORY + "/mask/feet.png";
+	
+	//This corresponds to an A4 image with 300dpi
+	private static final int WIDTH = 2480;
+	private static final int HEIGHT = 3508;
+	private static final PDRectangle A4_300DPI = new PDRectangle(WIDTH, HEIGHT);
+
+	private Comparator<Option> compareByRenderOrder = 
+			Comparator.comparing((Option o) -> o.getOptionCategory().getRenderOrder());
 	
 	@Autowired
 	private OptionService optionService;
 	
-	/*
-	 * 53 	= hair-1
-	 * 51 	= eye-2
-	 * 63 	= mouth-3
-	 * 47 	= beard-1
-	 * 3 	= shirt-1-v3
-	 * 39 	= pants-1-v2
-	 * 44 	= shoes-1
-	 */
+	@Autowired
+	private ResourceLoader resourceLoader;
 	
-	/*
-	 * 1. create a PDF with 3 pages: page one is for head, page two for body, three for feet
-	 * 2. read all selected options and based on the category print on the desired page
-	 * 3. add pixels remover at the end (TBD)
-	 * 4. save
-	 */
 	@GetMapping("/print")
-	public ResponseEntity<FileSystemResource> createPrintableImage(
+	public ResponseEntity<StreamingResponseBody> createPrintableImage(
 			@RequestParam List<Integer> ids
 	) throws IOException {
-		//TODO: Extract this
-		Comparator<Option> compareByRenderOrder = 
-				Comparator.comparing((Option o) -> o.getOptionCategory().getRenderOrder());
-		
-		//TODO: Extract this
-		Map<OptionCategory, Set<Option>> printMap = 
-				ids.stream().map(id -> optionService.getOption(id))
-				.collect(
-						Collectors.toMap(
-									(option) -> option.getOptionCategory().getModelCategory(), 
-									(option) -> {
-										Set<Option> optionSet = new TreeSet<>(compareByRenderOrder);
-										optionSet.add(option);
-										return optionSet;
-									},
-									(existingSet, newSet) -> {
-										existingSet.addAll(newSet);
-										return existingSet;
-									}
-				));
-		
-		logPrintableOptions(printMap);
-		
-		log.info(PRINT_PATH);
-		
-		//A4 300dpi
-		int widthInPx = 2480;
-		int heightInPx = 3508;
 		
 		try (PDDocument document = new PDDocument()) {
+			final File headCutout = getFileResource(HEAD_CUTOUTS_PATH);
+			final File bodyCutout = getFileResource(BODY_CUTOUTS_PATH);
+			final File feetCutout = getFileResource(FEET_CUTOUTS_PATH);
 			
-			//Create 3 blank pages
-			PDPage page1 = new PDPage(PDRectangle.A4);
-			PDPage page2 = new PDPage(PDRectangle.A4);
-			PDPage page3 = new PDPage(PDRectangle.A4);
+			final File headMask = getFileResource(HEAD_MASK_PATH);
+			final File bodyMask = getFileResource(BODY_MASK_PATH);
+			final File feetMask = getFileResource(FEET_MASK_PATH);
 			
-			document.addPage(page1);
-			document.addPage(page2);
-			document.addPage(page3);
+			Map<OptionCategory, Set<Option>> printMap = createPrintMap(ids);
+			logPrintableOptions(printMap);
+		
+			printMap.forEach((key, options) -> {
+				if (key == OptionCategory.HEAD) {
+					drawCategory(options, document, headCutout, headMask);
+				} else if (key == OptionCategory.BODY) {
+					drawCategory(options, document, bodyCutout, bodyMask);
+				} else if (key == OptionCategory.FEET) {
+					drawCategory(options, document, feetCutout, feetMask);
+				} else {
+					throw new AppException(
+							"Unsupported category: " + key.getCategory(), HttpStatus.BAD_REQUEST);
+				}
+			});
+
+			FileSystemResource resource = generatePdfResource(document);
 			
-			Consumer<Option> optionConsumer = 
-					(option) -> {
-						System.out.println(option.getTexturePath());
-					};
-					
-//			printMap.get(OptionCategory.HEAD).forEach(
-//			);
+	        StreamingResponseBody responseBody = outputStream -> {
+	        	final Path resourcePath = resource.getFile().toPath();
+	            Files.copy(resourcePath, outputStream);
+	            outputStream.flush();
+	            Files.deleteIfExists(resourcePath);
+	        };
+	        
+	        HttpHeaders headers = new HttpHeaders();
+			headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + resource.getFilename());
+			headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PDF_VALUE);
 			
-			LocalDateTime generationDate = LocalDateTime.now();
-			String generatedDateString = generationDate.format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss"));
-			String fileName = String.format("%s/ready-to-print-model-%s.pdf", PRINT_PATH, generatedDateString);
-			document.save(fileName);
-			log.info(String.format("Printable file generated: ",document));
-			
-			File outputFile = new File(fileName);
-			FileSystemResource resource = new FileSystemResource(outputFile);
-			HttpHeaders headers = new HttpHeaders();
-			headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + fileName);
-			
-			return ResponseEntity
-					.ok()
+			return ResponseEntity.ok()
 					.headers(headers)
-					.contentLength(outputFile.length())
-					.body(resource);
+					.contentLength(resource.getFile().length())
+					.body(responseBody);
 			
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -139,109 +127,98 @@ public class PrintController {
 		}
 	}
 	
-//	@PostMapping("/print")
-//	public ResponseEntity<FileSystemResource> createPrintableImage_old(@RequestParam List<Integer> ids) throws IOException {
-//		
-//		List<Option> printableOptions = ids.stream()
-//										 .map(id -> optionService.getOption(id))
-//										 .toList();
-//		
-//		//A4 300dpi
-//		int width = 2480;
-//		int height = 3508;
-////        int gap = 100;
-////        int margin = gap;
-//		
-//		try (PDDocument document = new PDDocument()) {
-//			
-//			//Create 3 blank pages
-//			PDPage page1 = new PDPage(PDRectangle.A4);
-//			PDPage page2 = new PDPage(PDRectangle.A4);
-//			PDPage page3 = new PDPage(PDRectangle.A4);
-//			
-//			document.addPage(page1);
-//			document.addPage(page2);
-//			document.addPage(page3);
-//			
-//			drawOnPage(document, page1, 1);
-//			drawOnPage(document, page2, 2);
-//			drawOnPage(document, page3, 3);
-//			
-//			LocalDateTime generationDate = LocalDateTime.now();
-//			String generatedDateString = generationDate.format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss"));
-//			document.save(String.format("ready-to-print-model-%s.pdf", generatedDateString));
-//			log.info(String.format("Printable file generated: ",document));
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//			throw new AppException("Printable file could not be generated.", HttpStatus.INTERNAL_SERVER_ERROR);
-//		}
-//		
-//		HttpHeaders headers = new HttpHeaders();
-//		headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + fileName);
-//		ResponseEntity<FileSystemResource> responseEntity = ResponseEntity
-//				.ok()
-//				.headers(headers)
-//				.contentLength(outputFile.length())
-//				.body(resource);
-		
-		//-----------------------------
-		
-//        BufferedImage stackedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-//        Graphics2D g2d = stackedImage.createGraphics();
-//        
-//        //convert to stream
-//        for (Option o : printableOptions) {
-//        	
-//        }
-//        
-//        //One paper per category
-//        
-////        g2d.drawImage(img1, margin, margin, null);
-////        g2d.drawImage(img2, margin, margin + img1.getHeight() + gap, null);
-//        g2d.dispose();
-//		
-//        // Save the final stacked image to a temporary file
-//        LocalDateTime timestamp = LocalDateTime.now();
-//		String fileName = "printable-" + timestamp.format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss")) + ".png";
-//		File outputFile = new File(fileName);
-//		ImageIO.write(stackedImage, "png", outputFile);
-//		
-//		// Return the image as a file download
-//		FileSystemResource resource = new FileSystemResource(outputFile);
-//		log.debug("Printable file created: " + resource);
-//		HttpHeaders headers = new HttpHeaders();
-//		headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + fileName);
-//		
-//		ResponseEntity<FileSystemResource> responseEntity = ResponseEntity
-//				.ok()
-//				.headers(headers)
-//				.contentLength(outputFile.length())
-//				.body(resource);
-//		
-//		//create some async task to delete the files ?
-//		
-//		return responseEntity;
-//	}
-	
-	private void drawOnPage(PDDocument document, PDPage page, int pageNumber) throws IOException {
-		int width = (int) page.getMediaBox().getWidth();
-		int height = (int) page.getMediaBox().getHeight();
-		BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-		
-		Graphics2D g2d = bufferedImage.createGraphics();
-		
-		if (true) {
-//			 g2d.drawImage(img1, 0, 0, null);
+	private FileSystemResource generatePdfResource(PDDocument document) throws IOException {
+		File printDir = new File(PRINT_PATH);
+		if (!printDir.exists()) {
+			printDir.mkdirs();
 		}
 		
-		g2d.dispose();
+		LocalDateTime generationDate = LocalDateTime.now();
+		String generatedDateString = generationDate.format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss"));
+		String fileName = String.format("ready-to-print-model-%s.pdf", generatedDateString);
+		String filePath = Path.of(PRINT_PATH, fileName).toString();
 		
-		// Convert BufferedImage to PDF image and draw it on the page
-        PDImageXObject pdImage = LosslessFactory.createFromImage(document, bufferedImage);
+		document.save(filePath);
+		log.info(String.format("Print file generated: ", filePath));
+		
+		File outputFile = new File(filePath);
+		return new FileSystemResource(outputFile);
+	}
+	
+	private File getFileResource(String path) throws IOException {
+		return resourceLoader.getResource(path).getFile();
+	}
+	
+	private Map<OptionCategory, Set<Option>> createPrintMap(List<Integer> ids) {
+		return ids.stream().map(id -> optionService.getOption(id))
+		.collect(
+				Collectors.toMap(
+							(option) -> option.getOptionCategory().getModelCategory(), 
+							(option) -> {
+								Set<Option> optionSet = new TreeSet<>(compareByRenderOrder);
+								optionSet.add(option);
+								return optionSet;
+							},
+							(existingSet, newSet) -> {
+								existingSet.addAll(newSet);
+								return existingSet;
+							}
+		));
+	}
+
+	private void drawCategory(Set<Option> options, PDDocument document, File cutouts, File mask) {
+		PDPage page = new PDPage(A4_300DPI);
+		document.addPage(page);
+		
+		BufferedImage stackedImage = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2d = null;
+		try {
+			g2d = stackedImage.createGraphics();
+	        g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
+			
+			for (Option o : options) {
+				drawAsset(o.getTexturePath(), g2d);
+			}
+			drawMask(mask, g2d);
+			drawCutouts(cutouts, g2d);
+			drawStackedImagesToPdfPage(document, page, stackedImage);
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			if (g2d != null) {
+				g2d.dispose();
+			}
+		}
+	}
+	
+	private void drawAsset(String texturePath, Graphics2D g2d) throws IOException {
+		BufferedImage image = ImageIO.read(new File(texturePath));
+		g2d.drawImage(image, 0, 0, WIDTH, HEIGHT, null);
+	}
+	
+	/**
+	 * Clears all pixels outside of the dark area of mask. This should be used to clear out all the texture spillovers.
+	 * Method should be called BEFORE drawing the cutouts.
+	 */
+	private void drawMask(File mask, Graphics2D g2d) throws IOException {
+		BufferedImage maskBufferedImage = ImageIO.read(mask);
+        g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.DST_IN, 1.0f));
+        g2d.drawImage(maskBufferedImage, 0, 0, WIDTH, HEIGHT, null);
+            
+        // Reset the composite to default to avoid affecting subsequent drawings
+        g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER));
+	}
+	
+	private void drawCutouts(File cutouts, Graphics2D g2d) throws IOException {
+		BufferedImage cutoutsBufferedImage = ImageIO.read(cutouts);
+		g2d.drawImage(cutoutsBufferedImage, 0, 0, WIDTH, HEIGHT, null);
+	}
+	
+	private void drawStackedImagesToPdfPage(PDDocument document, PDPage page, BufferedImage stackedImage) throws IOException {
+		PDImageXObject pdImage = LosslessFactory.createFromImage(document, stackedImage);
         try (PDPageContentStream contentStream = new PDPageContentStream(document, page)) {
-            contentStream.drawImage(pdImage, 0, 0, width, height);
+            contentStream.drawImage(pdImage, 0, 0, WIDTH, HEIGHT);
         }
-		
 	}
 	
 	private void logPrintableOptions(Map<OptionCategory, Set<Option>> printMap) {
