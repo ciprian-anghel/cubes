@@ -1,11 +1,11 @@
-import { AfterViewInit, Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ThreeService } from '../../service/character-threejs.service';
 import { fromEvent, Observable, Subscription } from 'rxjs';
-
+import { PrintComponent } from '../../print/print.component';
 @Component({
   selector: 'app-character-canvas',
   standalone: true,
-  imports: [],
+  imports: [PrintComponent],
   templateUrl: './character-canvas.component.html',
   styleUrl: './character-canvas.component.css'
 })

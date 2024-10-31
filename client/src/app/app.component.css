@@ -17,14 +17,6 @@
     justify-content: center;
 }
 
-.section-print {
-    display: flex;
-    justify-content: end;
-    margin-right: 2rem;
-    margin-top: 1rem;
-    margin-bottom: 1rem;
-}
-
 .character-canvas {
     width: 100%;
     height: 100%;

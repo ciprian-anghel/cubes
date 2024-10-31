@@ -1,4 +1,4 @@
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams, HttpResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { OptionDto } from '../../dto/option.dto';
@@ -32,11 +32,22 @@ export class BackendCommunicationService {
 
   getAsset(path: string): Observable<Blob> {
     const params = new HttpParams().set('path', path);
-    // return this.httpClient.get<Blob>(this.serverInstanceUrl + '/asset', {params});
     return this.httpClient.get(this.serverInstanceUrl + `/asset?path=${path}`, {
       responseType: 'blob',
       headers: new HttpHeaders({
         'Accept': 'image/png'
+      })
+    });
+  }
+
+  print(): Observable<HttpResponse<Blob>> {
+    const ids: number[] = [];
+    const baseColor: string = '';
+    return this.httpClient.get(this.serverInstanceUrl + `/print?ids=${ids}&baseColor${baseColor}`, {
+      observe: 'response',
+      responseType: 'blob',
+      headers: new HttpHeaders({
+        'Accept': 'application/pdf'
       })
     });
   }

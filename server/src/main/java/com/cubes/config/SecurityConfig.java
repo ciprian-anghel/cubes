@@ -13,7 +13,8 @@ public class SecurityConfig implements WebMvcConfigurer {
                 .allowedOrigins("http://localhost:4200", "https://cubes-client-674298018220.europe-west6.run.app")
                 .allowedMethods("GET", "POST", "PUT", "DELETE")
                 .allowedHeaders("*")
-                .allowCredentials(true);
+                .allowCredentials(true)
+                .exposedHeaders("Content-Disposition");
     }
 
 }
