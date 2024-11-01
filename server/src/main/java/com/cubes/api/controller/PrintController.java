@@ -26,8 +26,8 @@ import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -52,13 +52,13 @@ public class PrintController {
 	private static final Logger log = LoggerFactory.getLogger(PrintController.class);
 	
 	private static final String PRINT_PATH = FirebaseStorageRepository.BASE_PATH + "/print";
-	private static final String STATIC_DIRECTORY = "classpath:static";
-	private static final String HEAD_CUTOUTS_PATH = STATIC_DIRECTORY + "/cutouts/head.png";
-	private static final String BODY_CUTOUTS_PATH = STATIC_DIRECTORY + "/cutouts/body.png";
-	private static final String FEET_CUTOUTS_PATH = STATIC_DIRECTORY + "/cutouts/feet.png";
-	private static final String HEAD_MASK_PATH = STATIC_DIRECTORY + "/mask/head.png";
-	private static final String BODY_MASK_PATH = STATIC_DIRECTORY + "/mask/body.png";
-	private static final String FEET_MASK_PATH = STATIC_DIRECTORY + "/mask/feet.png";
+	private static final Path STATIC_DIRECTORY = Path.of("static");
+	private static final Path HEAD_CUTOUTS_PATH = Path.of(STATIC_DIRECTORY.toString(), "/cutouts/head.png");
+	private static final Path BODY_CUTOUTS_PATH = Path.of(STATIC_DIRECTORY.toString(), "/cutouts/body.png");
+	private static final Path FEET_CUTOUTS_PATH = Path.of(STATIC_DIRECTORY.toString(), "/cutouts/feet.png");
+	private static final Path HEAD_MASK_PATH = Path.of(STATIC_DIRECTORY.toString(), "/mask/head.png");
+	private static final Path BODY_MASK_PATH = Path.of(STATIC_DIRECTORY.toString(), "/mask/body.png");
+	private static final Path FEET_MASK_PATH = Path.of(STATIC_DIRECTORY.toString(), "/mask/feet.png");
 	
 	//This corresponds to an A4 image with 300dpi
 	private static final int WIDTH = 2480;
@@ -70,10 +70,7 @@ public class PrintController {
 	
 	@Autowired
 	private OptionService optionService;
-	
-	@Autowired
-	private ResourceLoader resourceLoader;
-	
+		
 	@GetMapping("/print")
 	public ResponseEntity<StreamingResponseBody> createPrintableImage(
 			@RequestParam(required = false, defaultValue = "ffffff") String baseColor,
@@ -147,10 +144,10 @@ public class PrintController {
 		return new FileSystemResource(outputFile);
 	}
 	
-	private File getFileResource(String path) throws IOException {
-		return resourceLoader.getResource(path).getFile();
+	private File getFileResource(Path path) throws IOException {
+		return new ClassPathResource(path.toString()).getFile();
 	}
-	
+		
 	private Map<OptionCategory, Set<Option>> createPrintMap(List<Integer> ids) {
 		Map<OptionCategory, Set<Option>> result = ids.stream().map(id -> optionService.getOption(id))
 		.collect(
