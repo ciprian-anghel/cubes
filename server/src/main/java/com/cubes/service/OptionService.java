@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import com.cubes.domain.entity.Option;
 import com.cubes.exception.AppException;
 import com.cubes.repository.FirebaseStorageRepository;
+import com.cubes.utils.OptionCategory;
 
 @Service
 public class OptionService {
@@ -58,8 +59,17 @@ public class OptionService {
 				.filter(o -> parentPath.equals(o.getParentPath())).toList();
 	}
 	
+	/**
+	 * Get all categories which 
+	 * @return
+	 */
 	public Set<String> getCategories() {
 		return getAllOptions().stream()
+				.filter(o -> {
+					return o.getOptionCategory() != OptionCategory.HEAD
+							&& o.getOptionCategory() != OptionCategory.BODY
+							&& o.getOptionCategory() != OptionCategory.FEET;
+				})
 				.map(o -> o.getOptionCategory().getCategory())
 				.collect(Collectors.toSet());
 	}

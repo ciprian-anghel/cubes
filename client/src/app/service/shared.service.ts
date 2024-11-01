@@ -18,6 +18,30 @@ export class SharedService {
     this.selectedOption.next(
       {option: option, navigationId: navigationId}
     );
+    this.saveOptionToLocalStorage(option);
+  }
+
+  clearTexture(option: Option): boolean {
+    if (!option.scheduledToClearTexture) {
+      return false;
+    }
+    
+    option.scheduledToClearTexture = false;
+    option.selected = false;
+    this.removeOptionFromStorage(option);
+    return true;
+  } 
+
+  private saveOptionToLocalStorage(option: Option) {
+    if (option.texturePath) {
+      localStorage.setItem(option.category, option.id.toString());
+    }
+  }
+
+  private removeOptionFromStorage(option: Option) {
+    if (option.texturePath) {
+      localStorage.removeItem(option.category);
+    }
   }
 
   resetSelectedOption() {

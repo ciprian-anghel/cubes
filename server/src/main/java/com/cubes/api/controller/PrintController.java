@@ -70,7 +70,6 @@ public class PrintController {
 		
 	@GetMapping("/print")
 	public ResponseEntity<StreamingResponseBody> createPrintableImage(
-			@RequestParam(required = false, defaultValue = "0") int baseColorId,
 			@RequestParam(required = false, defaultValue = "") List<Integer> ids 
 	) throws IOException {
 		
@@ -83,10 +82,10 @@ public class PrintController {
 			final File bodyMask = getFileResource(BODY_MASK_PATH);
 			final File feetMask = getFileResource(FEET_MASK_PATH);
 			
-			Map<OptionCategory, Set<Option>> printMap = createPrintMap(ids);
+			Map<OptionCategory, Set<Option>> printMap = printableElementsMap(ids);
 			logPrintableOptions(printMap);
 			
-			int baseColor = getBaseColor(baseColorId);
+			int baseColor = getBaseColor(printMap.get(OptionCategory.BASE_COLOR));
 					
 			printMap.forEach((key, options) -> {
 				if (key == OptionCategory.HEAD) {
@@ -122,11 +121,11 @@ public class PrintController {
 		}
 	}
 	
-	private int getBaseColor(int baseColorId) {
-		if (baseColorId <= 0) {
+	private int getBaseColor(Set<Option> options) {
+		if (options == null || options.isEmpty()) {
 			return 0;
 		}
-		return optionService.getOption(baseColorId).getColor();
+		return options.stream().findFirst().get().getColor();
 	}
 		
 	private FileSystemResource generatePdfResource(PDDocument document) throws IOException {
@@ -154,15 +153,22 @@ public class PrintController {
 	    }
 		return result;
 	}
-		
-	private Map<OptionCategory, Set<Option>> createPrintMap(List<Integer> ids) {
+	
+	private Map<OptionCategory, Set<Option>> printableElementsMap(List<Integer> ids) {
 		Map<OptionCategory, Set<Option>> result = ids.stream().map(id -> optionService.getOption(id))
 		.collect(
 				Collectors.toMap(
-							(option) -> option.getOptionCategory().getModelCategory(), 
+							(key) -> {
+								if (key.getOptionCategory().getModelCategory() == null) {
+									return OptionCategory.BASE_COLOR;
+								}
+								return key.getOptionCategory().getModelCategory();
+							}, 
 							(option) -> {
 								Set<Option> optionSet = new TreeSet<>(compareByRenderOrder);
-								optionSet.add(option);
+								if (option.getTexturePath() != null || option.getColor() > 0) {
+									optionSet.add(option);
+								}
 								return optionSet;
 							},
 							(existingSet, newSet) -> {
@@ -181,6 +187,10 @@ public class PrintController {
 		
 		if (result.get(OptionCategory.FEET) == null) {
 			result.put(OptionCategory.FEET, Set.of());
+		}
+		
+		if (result.get(OptionCategory.BASE_COLOR) == null) {
+			result.put(OptionCategory.BASE_COLOR, Set.of());
 		}
 		
 		return result;

@@ -12,5 +12,5 @@ export const DEFAULT_OPTION: Option = {
   renderOrder: 0,
   name: '',
   selected: false,
-  toClearTexture: false
+  scheduledToClearTexture: false
 };

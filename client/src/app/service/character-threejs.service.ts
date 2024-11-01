@@ -171,10 +171,7 @@ export class ThreeService implements OnDestroy {
         const option: Option = selectedItem.option;
         
         this.removeMeshesByCategory(option);
-        if (option.toClearTexture) {
-          option.toClearTexture = false;
-          option.selected = false;
-          localStorage.removeItem(option.category);
+        if (this.sharedService.clearTexture(option)) {
           return;
         }
 

@@ -12,4 +12,9 @@ import { CharacterCanvasComponent } from "./customization/character/character-ca
 })
 export class AppComponent {
   title = 'cubes';
+
+  constructor() {
+    localStorage.clear();
+  }
+  
 }

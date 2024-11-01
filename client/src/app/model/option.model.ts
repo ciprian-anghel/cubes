@@ -10,5 +10,5 @@ export interface Option {
     renderOrder: number;
 	name: string;
 	selected: boolean;
-	toClearTexture: boolean;
+	scheduledToClearTexture: boolean;
 }

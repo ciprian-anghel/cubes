@@ -49,11 +49,10 @@ export class OptionButtonComponent {
    * see ThreeService
    */
   selectOption() {
-    if (this.option().selected) {      
-      this.option().toClearTexture = true;      
+    if (this.option().selected) {
+      this.option().scheduledToClearTexture = true;
     }
 
-    localStorage.setItem(this.option().category, this.option().id.toString());
     this.sharedService.setSelectedOption(this.option(), this.navigationId());
   }
 

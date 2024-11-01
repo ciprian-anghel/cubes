@@ -20,7 +20,7 @@ export class OptionMapper {
             renderOrder: dto.renderOrder,
             name: dto.name,
             selected: false,
-            toClearTexture: false
+            scheduledToClearTexture: false
         };
         return option;
     }

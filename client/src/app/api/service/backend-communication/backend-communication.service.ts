@@ -40,8 +40,8 @@ export class BackendCommunicationService {
     });
   }
 
-  print(ids: number[], baseColorId: number): Observable<HttpResponse<Blob>> {
-    return this.httpClient.get(this.serverInstanceUrl + `/print?ids=${ids}&baseColorId${baseColorId}`, {
+  print(ids: number[]): Observable<HttpResponse<Blob>> {
+    return this.httpClient.get(this.serverInstanceUrl + `/print?ids=${ids}`, {
       observe: 'response',
       responseType: 'blob',
       headers: new HttpHeaders({
