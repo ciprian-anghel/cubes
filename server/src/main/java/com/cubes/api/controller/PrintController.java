@@ -70,7 +70,7 @@ public class PrintController {
 		
 	@GetMapping("/print")
 	public ResponseEntity<StreamingResponseBody> createPrintableImage(
-			@RequestParam(required = false, defaultValue = "ffffff") String baseColor,
+			@RequestParam(required = false, defaultValue = "0") int baseColorId,
 			@RequestParam(required = false, defaultValue = "") List<Integer> ids 
 	) throws IOException {
 		
@@ -85,7 +85,9 @@ public class PrintController {
 			
 			Map<OptionCategory, Set<Option>> printMap = createPrintMap(ids);
 			logPrintableOptions(printMap);
-		
+			
+			int baseColor = getBaseColor(baseColorId);
+					
 			printMap.forEach((key, options) -> {
 				if (key == OptionCategory.HEAD) {
 					drawCategory(options, document, headCutout, headMask, baseColor);
@@ -120,6 +122,13 @@ public class PrintController {
 		}
 	}
 	
+	private int getBaseColor(int baseColorId) {
+		if (baseColorId <= 0) {
+			return 0;
+		}
+		return optionService.getOption(baseColorId).getColor();
+	}
+		
 	private FileSystemResource generatePdfResource(PDDocument document) throws IOException {
 		File printDir = new File(PRINT_PATH);
 		if (!printDir.exists()) {
@@ -177,7 +186,7 @@ public class PrintController {
 		return result;
 	}
 
-	private void drawCategory(Set<Option> options, PDDocument document, File cutouts, File mask, String hexColor) {
+	private void drawCategory(Set<Option> options, PDDocument document, File cutouts, File mask, int rgbColor) {
 		PDPage page = new PDPage(A4_300DPI);
 		document.addPage(page);
 		
@@ -187,7 +196,7 @@ public class PrintController {
 			g2d = stackedImage.createGraphics();
 	        g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
 			
-	        drawBaseColor(hexColor, g2d);
+	        drawBaseColor(rgbColor, g2d);
 	        
 			for (Option o : options) {
 				drawAsset(o.getTexturePath(), g2d);
@@ -205,13 +214,19 @@ public class PrintController {
 		}
 	}
 	
-	private void drawBaseColor(String hexColor, Graphics2D g2d) {
-		g2d.setColor(new Color(Integer.parseInt(hexColor, 16)));
+	private void drawBaseColor(int rgbColor, Graphics2D g2d) {
+		if (rgbColor <= 0) {
+			return;
+		}
+		g2d.setColor(new Color(rgbColor));
 		g2d.fillRect(0, 0, WIDTH, HEIGHT);
 		g2d.setComposite(AlphaComposite.SrcOver);
 	}
 	
 	private void drawAsset(String texturePath, Graphics2D g2d) throws IOException {
+		if (texturePath == null) {
+			return;
+		}
 		BufferedImage image = ImageIO.read(new File(texturePath));
 		g2d.drawImage(image, 0, 0, WIDTH, HEIGHT, null);
 	}

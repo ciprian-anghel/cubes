@@ -17,9 +17,21 @@ export class PrintComponent {
   
   loading: boolean = false;
 
-  onClick() {   
+  print() {
+    const categories = this.getCategories();
+    let ids: number[] = [];
+    let baseColorId: number = 0;
+
+    categories.forEach(category => {
+      let id: number = Number.parseInt(localStorage.getItem(category) || '0');
+      if (id > 0) {
+        ids.push(id);
+      }
+    });
+    baseColorId = Number.parseInt(localStorage.getItem('color') || '0');
+ 
     this.loading = true;    
-    this.backendApi.print()
+    this.backendApi.print(ids, baseColorId)
     .pipe(takeUntilDestroyed(this.destroyRef))
     .subscribe({
       next: (response) => {
@@ -43,6 +55,25 @@ export class PrintComponent {
         console.error("Error generating printable file:", error);
       }
     });
+  }
+
+  private getCategories(): string[] {
+    if (localStorage.getItem('categories')) {
+      console.log("reading categories from cache");
+    } else {
+      console.log("reading categories from server");
+      this.backendApi.getCategories()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (categories) => {
+          localStorage.setItem('categories', JSON.stringify(categories));
+        },
+        error: (error) => {
+          console.error("Error retrieving categories from server.", error);
+        }
+      });
+    }
+    return JSON.parse(localStorage.getItem('categories') || '[]');
   }
 
 }

@@ -3,6 +3,8 @@ package com.cubes.service;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -54,6 +56,12 @@ public class OptionService {
 		
 		return getAllOptions().stream()
 				.filter(o -> parentPath.equals(o.getParentPath())).toList();
+	}
+	
+	public Set<String> getCategories() {
+		return getAllOptions().stream()
+				.map(o -> o.getOptionCategory().getCategory())
+				.collect(Collectors.toSet());
 	}
 	
 }

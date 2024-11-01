@@ -40,16 +40,18 @@ export class BackendCommunicationService {
     });
   }
 
-  print(): Observable<HttpResponse<Blob>> {
-    const ids: number[] = [];
-    const baseColor: string = '';
-    return this.httpClient.get(this.serverInstanceUrl + `/print?ids=${ids}&baseColor${baseColor}`, {
+  print(ids: number[], baseColorId: number): Observable<HttpResponse<Blob>> {
+    return this.httpClient.get(this.serverInstanceUrl + `/print?ids=${ids}&baseColorId${baseColorId}`, {
       observe: 'response',
       responseType: 'blob',
       headers: new HttpHeaders({
         'Accept': 'application/pdf'
       })
     });
+  }
+
+  getCategories(): Observable<String[]> {
+    return this.httpClient.get<string[]>(this.serverInstanceUrl + '/categories');
   }
 
 }

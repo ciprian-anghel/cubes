@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -107,6 +108,12 @@ public class OptionController {
 	                .contentType(MediaType.APPLICATION_JSON)
 	                .body(new IOException("Error reading the file: " + path));
 		}
+	}
+	
+	@GetMapping("/categories")
+	public ResponseEntity<Set<String>> getChildren() {
+		Set<String> options = service.getCategories();
+		return ResponseEntity.ok(options);
 	}
 
 }
