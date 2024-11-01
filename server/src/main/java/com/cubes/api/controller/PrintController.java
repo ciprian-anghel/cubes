@@ -26,7 +26,6 @@ import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -51,14 +50,13 @@ public class PrintController {
 	
 	private static final Logger log = LoggerFactory.getLogger(PrintController.class);
 	
-	private static final String PRINT_PATH = FirebaseStorageRepository.BASE_PATH + "/print";
-	private static final Path STATIC_DIRECTORY = Path.of("static");
-	private static final Path HEAD_CUTOUTS_PATH = Path.of(STATIC_DIRECTORY.toString(), "/cutouts/head.png");
-	private static final Path BODY_CUTOUTS_PATH = Path.of(STATIC_DIRECTORY.toString(), "/cutouts/body.png");
-	private static final Path FEET_CUTOUTS_PATH = Path.of(STATIC_DIRECTORY.toString(), "/cutouts/feet.png");
-	private static final Path HEAD_MASK_PATH = Path.of(STATIC_DIRECTORY.toString(), "/mask/head.png");
-	private static final Path BODY_MASK_PATH = Path.of(STATIC_DIRECTORY.toString(), "/mask/body.png");
-	private static final Path FEET_MASK_PATH = Path.of(STATIC_DIRECTORY.toString(), "/mask/feet.png");
+	private static final String PRINT_DIR_PATH = FirebaseStorageRepository.BASE_PATH + "/print";
+	private static final String HEAD_CUTOUTS_PATH = PRINT_DIR_PATH.toString() + "/cutouts/head.png";
+	private static final String BODY_CUTOUTS_PATH = PRINT_DIR_PATH.toString() + "/cutouts/body.png";
+	private static final String FEET_CUTOUTS_PATH = PRINT_DIR_PATH.toString() + "/cutouts/feet.png";
+	private static final String HEAD_MASK_PATH = PRINT_DIR_PATH.toString() + "/mask/head.png";
+	private static final String BODY_MASK_PATH = PRINT_DIR_PATH.toString() + "/mask/body.png";
+	private static final String FEET_MASK_PATH = PRINT_DIR_PATH.toString() + "/mask/feet.png";
 	
 	//This corresponds to an A4 image with 300dpi
 	private static final int WIDTH = 2480;
@@ -127,7 +125,7 @@ public class PrintController {
 	}
 	
 	private FileSystemResource generatePdfResource(PDDocument document) throws IOException {
-		File printDir = new File(PRINT_PATH);
+		File printDir = new File(PRINT_DIR_PATH);
 		if (!printDir.exists()) {
 			printDir.mkdirs();
 		}
@@ -135,7 +133,7 @@ public class PrintController {
 		LocalDateTime generationDate = LocalDateTime.now();
 		String generatedDateString = generationDate.format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss"));
 		String fileName = String.format("ready-to-print-model-%s.pdf", generatedDateString);
-		String filePath = Path.of(PRINT_PATH, fileName).toString();
+		String filePath = Path.of(PRINT_DIR_PATH, fileName).toString();
 		
 		document.save(filePath);
 		log.info(String.format("Print file generated: ", filePath));
@@ -143,9 +141,13 @@ public class PrintController {
 		File outputFile = new File(filePath);
 		return new FileSystemResource(outputFile);
 	}
-	
-	private File getFileResource(Path path) throws IOException {
-		return new ClassPathResource(path.toString()).getFile();
+		
+	private File getFileResource(String path) throws IOException {
+		File result = new File(path);
+		if (!result.exists()) {
+	        throw new IOException("Resource not found: " + path);
+	    }
+		return result;
 	}
 		
 	private Map<OptionCategory, Set<Option>> createPrintMap(List<Integer> ids) {
