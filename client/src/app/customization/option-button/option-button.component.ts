@@ -50,9 +50,10 @@ export class OptionButtonComponent {
    */
   selectOption() {
     if (this.option().selected) {      
-      this.option().toClearTexture = true;
+      this.option().toClearTexture = true;      
     }
 
+    localStorage.setItem(this.option().category, this.option().id.toString());
     this.sharedService.setSelectedOption(this.option(), this.navigationId());
   }
 

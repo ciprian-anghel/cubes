@@ -25,7 +25,6 @@ export class PrintComponent {
       next: (response) => {
         const blob = response.body;
         const contentDisposition = response.headers.get('Content-Disposition');
-        console.log(contentDisposition); 
         const filename = contentDisposition 
           ? contentDisposition.split('filename=')[1].replace(/"/g, '')
           : 'downloaded-file.pdf';

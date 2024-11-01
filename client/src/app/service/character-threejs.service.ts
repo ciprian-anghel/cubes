@@ -174,6 +174,7 @@ export class ThreeService implements OnDestroy {
         if (option.toClearTexture) {
           option.toClearTexture = false;
           option.selected = false;
+          localStorage.removeItem(option.category);
           return;
         }
 

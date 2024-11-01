@@ -93,9 +93,6 @@ public class PrintController {
 					drawCategory(options, document, bodyCutout, bodyMask, baseColor);
 				} else if (key == OptionCategory.FEET) {
 					drawCategory(options, document, feetCutout, feetMask, baseColor);
-				} else {
-					throw new AppException(
-							"Unsupported category: " + key.getCategory(), HttpStatus.BAD_REQUEST);
 				}
 			});
 
