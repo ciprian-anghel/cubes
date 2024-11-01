@@ -155,20 +155,20 @@ public class Option {
 				return null;
 			}
 			return path.replace("\\", "/");
-//					   .replace(FirebaseStorageRepository.BASE_PATH, "");
+//					   .replace(FirebaseStorageRepository.ASSETS_PATH, "");
 		}
 		
 		/* TODO: MOVE THIS TO SOME OTHER HELPER CLASS */
 		private String cleanParentPath(String parentPath) {
-			if (parentPath == null || isCubesPath(parentPath)) {
+			if (parentPath == null || isAssetsPath(parentPath)) {
 				return null;
 			}
 			return cleanPath(parentPath);
 		}
 		
 		/* TODO: MOVE THIS TO SOME OTHER HELPER CLASS */
-		private boolean isCubesPath(String path) {
-		    return Path.of(path).equals(Path.of(FirebaseStorageRepository.CUBES_PATH));
+		private boolean isAssetsPath(String path) {
+		    return Path.of(path).equals(Path.of(FirebaseStorageRepository.ASSETS_PATH));
 		}
 	}
 }

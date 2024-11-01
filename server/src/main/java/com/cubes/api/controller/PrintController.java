@@ -1,4 +1,5 @@
 package com.cubes.api.controller;
+import static com.cubes.repository.FirebaseStorageRepository.PRINT_PATH;
 
 import java.awt.AlphaComposite;
 import java.awt.Color;
@@ -40,7 +41,6 @@ import org.threeten.bp.format.DateTimeFormatter;
 
 import com.cubes.domain.entity.Option;
 import com.cubes.exception.AppException;
-import com.cubes.repository.FirebaseStorageRepository;
 import com.cubes.service.OptionService;
 import com.cubes.utils.OptionCategory;
 
@@ -50,13 +50,12 @@ public class PrintController {
 	
 	private static final Logger log = LoggerFactory.getLogger(PrintController.class);
 	
-	private static final String PRINT_DIR_PATH = FirebaseStorageRepository.BASE_PATH + "/print";
-	private static final String HEAD_CUTOUTS_PATH = PRINT_DIR_PATH.toString() + "/cutouts/head.png";
-	private static final String BODY_CUTOUTS_PATH = PRINT_DIR_PATH.toString() + "/cutouts/body.png";
-	private static final String FEET_CUTOUTS_PATH = PRINT_DIR_PATH.toString() + "/cutouts/feet.png";
-	private static final String HEAD_MASK_PATH = PRINT_DIR_PATH.toString() + "/mask/head.png";
-	private static final String BODY_MASK_PATH = PRINT_DIR_PATH.toString() + "/mask/body.png";
-	private static final String FEET_MASK_PATH = PRINT_DIR_PATH.toString() + "/mask/feet.png";
+	private static final String HEAD_CUTOUTS_PATH = PRINT_PATH + "/cutouts/head.png";
+	private static final String BODY_CUTOUTS_PATH = PRINT_PATH + "/cutouts/body.png";
+	private static final String FEET_CUTOUTS_PATH = PRINT_PATH + "/cutouts/feet.png";
+	private static final String HEAD_MASK_PATH = PRINT_PATH + "/mask/head.png";
+	private static final String BODY_MASK_PATH = PRINT_PATH + "/mask/body.png";
+	private static final String FEET_MASK_PATH = PRINT_PATH + "/mask/feet.png";
 	
 	//This corresponds to an A4 image with 300dpi
 	private static final int WIDTH = 2480;
@@ -125,7 +124,7 @@ public class PrintController {
 	}
 	
 	private FileSystemResource generatePdfResource(PDDocument document) throws IOException {
-		File printDir = new File(PRINT_DIR_PATH);
+		File printDir = new File(PRINT_PATH);
 		if (!printDir.exists()) {
 			printDir.mkdirs();
 		}
@@ -133,7 +132,7 @@ public class PrintController {
 		LocalDateTime generationDate = LocalDateTime.now();
 		String generatedDateString = generationDate.format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss"));
 		String fileName = String.format("ready-to-print-model-%s.pdf", generatedDateString);
-		String filePath = Path.of(PRINT_DIR_PATH, fileName).toString();
+		String filePath = Path.of(PRINT_PATH, fileName).toString();
 		
 		document.save(filePath);
 		log.info(String.format("Print file generated: ", filePath));

@@ -31,10 +31,11 @@ public class FirebaseStorageRepository {
 	
 	private static final Logger log = LoggerFactory.getLogger(FirebaseStorageRepository.class);
 	
-	public static final String BASE_PATH = Path.of(System.getProperty("user.dir"), "../", "cube_assets").normalize().toString();
-	private static final String ASSETS_PATH = BASE_PATH + "/assets";
-	public static final String CUBES_PATH = ASSETS_PATH + "/cubes";
-	private static final String FOLDER_PREFIX = "cubes";
+	public static final String CUBES_ASSETS_PATH = Path.of(System.getProperty("user.dir"), "../", "cubes_assets").normalize().toString();
+	public static final String CUBES_PATH = CUBES_ASSETS_PATH + "/cubes";
+	public static final String ASSETS_PATH = CUBES_PATH + "/assets";
+	public static final String PRINT_PATH = CUBES_PATH + "/print";
+	private static final String INSTANCE_DIRECTORY = "cubes";
 	
 	private final Bucket bucket;
 	private final Environment environment;
@@ -66,7 +67,7 @@ public class FirebaseStorageRepository {
     		discardCachedAssets(Paths.get(CUBES_PATH).toFile());
     	}    		
     	downloadAssetsIfNotCached();
-    	return processor.processOptions(Path.of(CUBES_PATH));
+    	return processor.processOptions(Path.of(ASSETS_PATH));
     }
     
     private void discardCachedAssets(File file) {
@@ -89,7 +90,7 @@ public class FirebaseStorageRepository {
     
     private void downloadAssetsFromRemoteStorage() {
     	log.info("Downloading assets from remote storage");
-    	bucket.list(BlobListOption.prefix(FOLDER_PREFIX))
+    	bucket.list(BlobListOption.prefix(INSTANCE_DIRECTORY))
     		  .streamAll()
     		  .filter(blob -> processor.isAllowedFile(blob.getName()))
     		  .parallel()
@@ -98,7 +99,7 @@ public class FirebaseStorageRepository {
 
     private void downloadAsset(Blob blob) {
         String name = blob.getName();
-        Path targetPath = Path.of(ASSETS_PATH, name);
+        Path targetPath = Path.of(CUBES_ASSETS_PATH, name);
 
         try {
         	processor.createDirectoriesFromPath(targetPath.toString());
