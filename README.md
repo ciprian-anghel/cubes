@@ -1,4 +1,4 @@
-# [CUBES page](https://cubes-client-674298018220.europe-west6.run.app/)
+# [CUBES page](https://cubes-client-674298018220.europe-west6.run.app/) - server is down
 # How to deploy the app on Google Cloud services
 
 ## Steps to create project in google cloud:
